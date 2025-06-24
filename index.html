@@ -61,7 +61,7 @@
             </div>
         </header>
 
-        <!-- NOVO: Seção de Pesquisa -->
+        <!-- Seção de Pesquisa -->
         <div class="mb-6 p-4 bg-gray-800 bg-opacity-50 backdrop-blur-sm rounded-lg">
             <h2 class="text-lg font-semibold mb-3">Pesquisar por Jogo:</h2>
             <div class="relative">
@@ -122,18 +122,13 @@
 
             // --- FUNÇÕES DE RENDERIZAÇÃO ---
             
-            /**
-             * Filtra os eventos com base nos filtros e pesquisa ativos
-             */
             const getFilteredEvents = () => {
                 let filtered = events;
 
-                // 1. Filtra por provedor
                 if (!selectedProviders.includes('All')) {
                     filtered = filtered.filter(event => selectedProviders.includes(event.provider));
                 }
 
-                // 2. Filtra pela pesquisa
                 if (searchQuery) {
                     filtered = filtered.filter(event => event.game.toLowerCase().includes(searchQuery.toLowerCase()));
                 }
@@ -213,7 +208,7 @@
                     const cellClasses = `calendar-day relative p-2 rounded-lg transition-colors duration-200 aspect-square flex items-center justify-center
                         ${dayEvents.length > 0 ? 'cursor-pointer hover:bg-indigo-700 bg-gray-700' : 'text-gray-500'}
                         ${isToday ? 'bg-indigo-500 !text-white font-bold' : ''}
-                        ${isSearched ? '!bg-green-500 ring-2 ring-white' : ''}`; // Destaque para dia pesquisado
+                        ${isSearched ? '!bg-green-500 ring-2 ring-white' : ''}`;
                     
                     daysHTML += `
                         <div class="${cellClasses}" data-day="${day}" data-month="${month}" data-year="${year}">
@@ -284,7 +279,6 @@
                 }
             };
 
-            // --- MANIPULADORES DE EVENTOS (HANDLERS) ---
             const handleProviderToggle = (provider) => {
                 if (provider === 'All') {
                     selectedProviders = ['All'];
@@ -301,10 +295,9 @@
                 renderCalendars();
             };
             
-            // NOVO: Handler para a pesquisa e autocomplete
             const handleSearchInput = (e) => {
                 searchQuery = e.target.value;
-                const suggestions = getFilteredEvents().filter((_, index) => index < 5); // Limita a 5 sugestões
+                const suggestions = getFilteredEvents().filter((_, index) => index < 5);
                 
                 if (searchQuery && suggestions.length > 0) {
                     autocompleteList.innerHTML = suggestions.map(event => 
@@ -318,7 +311,6 @@
                 renderCalendars();
             };
             
-            // NOVO: Handler para clique na sugestão
             const handleSuggestionClick = (e) => {
                 if (e.target.dataset.game) {
                     const selectedGame = e.target.dataset.game;
@@ -329,7 +321,7 @@
                     const event = events.find(ev => ev.game === selectedGame);
                     if (event) {
                         currentDate = new Date(event.date);
-                        currentDate.setDate(1); // Vai para o início do mês do evento
+                        currentDate.setDate(1);
                     }
 
                     renderCalendars();
@@ -339,7 +331,8 @@
             // --- LÓGICA DE INICIALIZAÇÃO ---
             const fetchData = async () => {
                 try {
-                    const response = await fetch(`${CSV_URL}&t=${new Date().getTime()}`);
+                    // MUDANÇA: Adicionado parâmetro para forçar a limpeza do cache.
+                    const response = await fetch(`${CSV_URL}&cache_bust=${new Date().getTime()}`);
                     const csvText = await response.text();
                     const lines = csvText.split('\r\n').slice(1);
 
@@ -376,7 +369,6 @@
             modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
             searchInput.addEventListener('input', handleSearchInput);
             autocompleteList.addEventListener('click', handleSuggestionClick);
-            // Esconde sugestões se clicar fora
             document.addEventListener('click', (e) => { if (!e.target.closest('.relative')) autocompleteList.classList.add('hidden'); });
 
             // Inicia a aplicação
