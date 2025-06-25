@@ -232,11 +232,15 @@
             const renderModal = (date, dayEvents) => {
                 let eventsHTML = '';
                 dayEvents.forEach(event => {
+                    // CORREÇÃO: Texto alterado para H2Bet
+                    const activeInfo = event.activeOnSite.toLowerCase() === 'sim'
+                        ? `<div class="flex items-center gap-2 text-green-400"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg><span>Ativo na H2Bet: Sim</span></div>`
+                        : `<div class="flex items-center gap-2 text-red-400"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" /></svg><span>Ativo na H2Bet: Não</span></div>`;
+
                     const certInfo = event.certificate.toLowerCase() === 'sim' 
                         ? `<div class="flex items-center gap-2 text-green-400"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg><span>Certificado: Sim</span></div>`
                         : `<div class="flex items-center gap-2 text-red-400"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" /></svg><span>Certificado: Não</span></div>`;
                     
-                    // MUDANÇA: Adicionado cache buster nas URLs das imagens
                     const uniqueTimestamp = new Date().getTime();
                     const gameImageUrl = `${event.gameImage}?v=${uniqueTimestamp}`;
                     const providerImageUrl = `${event.providerImage}?v=${uniqueTimestamp}`;
@@ -247,6 +251,7 @@
                             <div class="flex-1">
                                 <h4 class="text-xl font-bold text-white">${event.game}</h4>
                                 <p class="text-sm bg-indigo-500 inline-block px-2 py-0.5 rounded-full my-2">${event.gameType}</p>
+                                <div class="mt-2 text-sm">${activeInfo}</div>
                                 <div class="mt-2 text-sm">${certInfo}</div>
                                 <div class="flex items-center gap-2 mt-3 pt-3 border-t border-gray-600">
                                    <img src="${providerImageUrl}" alt="Logo de ${event.provider}" class="h-10 object-contain bg-gray-800 p-1 rounded" onerror="this.onerror=null;this.src='${PLACEHOLDER_PROVIDER_IMAGE}';">
@@ -338,13 +343,26 @@
                 try {
                     const response = await fetch(`${CSV_URL}&cache_bust=${new Date().getTime()}`);
                     const csvText = await response.text();
-                    const lines = csvText.split('\r\n').slice(1);
+                    const allLines = csvText.split('\r\n');
+                    
+                    // MELHORIA: Lê o cabeçalho para tornar a ordem das colunas flexível
+                    const header = allLines.shift().split(',').map(h => h.trim().replace(/"/g, ''));
+                    const headerMap = header.reduce((acc, curr, index) => ({...acc, [curr]: index }), {});
 
-                    const parsedEvents = lines.map(line => {
+                    const parsedEvents = allLines.map(line => {
                         const columns = line.split(',').map(c => c.trim().replace(/"/g, ''));
-                        if (columns.length < 7) return null;
+                        if (columns.length < header.length) return null;
                         
-                        const [dateStr, provider, game, gameType, providerImage, gameImage, certificate] = columns;
+                        // MELHORIA: Usa o mapa do cabeçalho para pegar os dados corretos
+                        const dateStr = columns[headerMap['Data']];
+                        const provider = columns[headerMap['Provedor']];
+                        const game = columns[headerMap['Jogo']];
+                        const gameType = columns[headerMap['Tipo de jogo']];
+                        const certificate = columns[headerMap['Certificado']];
+                        const activeOnSite = columns[headerMap['Ativo no site?']];
+                        const providerImage = columns[headerMap['Imagem provedor']];
+                        const gameImage = columns[headerMap['Imagem']];
+
                         if (!dateStr || !provider || !game) return null;
 
                         const [day, month, year] = dateStr.split('/');
@@ -352,7 +370,16 @@
 
                         if (isNaN(date.getTime())) return null;
 
-                        return { date, provider, game, gameType, gameImage: gameImage && gameImage.startsWith('http') ? gameImage : PLACEHOLDER_IMAGE, providerImage: providerImage && providerImage.startsWith('http') ? providerImage : PLACEHOLDER_PROVIDER_IMAGE, certificate: certificate || 'Não' };
+                        return { 
+                            date, 
+                            provider, 
+                            game, 
+                            gameType, 
+                            gameImage: gameImage && gameImage.startsWith('http') ? gameImage : PLACEHOLDER_IMAGE, 
+                            providerImage: providerImage && providerImage.startsWith('http') ? providerImage : PLACEHOLDER_PROVIDER_IMAGE, 
+                            certificate: certificate || 'Não',
+                            activeOnSite: activeOnSite || 'Não'
+                        };
                     }).filter(Boolean);
 
                     events = parsedEvents;
