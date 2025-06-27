@@ -24,255 +24,348 @@
     </script>
     <style>
         /* Estilos Customizados */
-        body {
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-        
-        /* Estilos para o efeito de partículas */
-        @keyframes move {
-            100% {
-                transform: translate3d(0, 0, 1px) rotate(360deg);
-            }
-        }
-
-        .particle {
-            position: absolute;
-            border-radius: 50%;
-            background: rgba(129, 140, 248, 0.2); /* Tom de indigo para combinar com o tema */
-            animation: move linear infinite;
-            transform-origin: center center;
-        }
+        body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        @keyframes move { 100% { transform: translate3d(0, 0, 1px) rotate(360deg); } }
+        .particle { position: absolute; border-radius: 50%; background: rgba(129, 140, 248, 0.2); animation: move linear infinite; transform-origin: center center; }
+        /* Animação para o Toast */
+        .toast-enter { transform: translateY(100%); opacity: 0; }
+        .toast-enter-active { transform: translateY(0); opacity: 1; transition: all 300ms ease-out; }
+        .toast-exit { transform: translateY(0); opacity: 1; }
+        .toast-exit-active { transform: translateY(100%); opacity: 0; transition: all 300ms ease-in; }
     </style>
 </head>
-<body class="bg-gray-900 text-white font-sans">
+<body class="bg-gray-900 text-white font-sans overflow-x-hidden">
 
     <!-- Efeito de Partículas no Fundo -->
     <div id="particles-js" class="absolute inset-0 z-0 overflow-hidden"></div>
 
     <!-- Conteúdo Principal -->
     <main class="relative z-10 max-w-7xl mx-auto p-4 md:p-8">
-        <header class="flex flex-col md:flex-row justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-indigo-400 mb-4 md:mb-0">Calendário de Lançamentos</h1>
+        <header class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+            <h1 class="text-3xl font-bold text-indigo-400">Calendário de Lançamentos</h1>
             <div class="flex items-center gap-2">
-                <button id="prev-btn" class="px-4 py-2 bg-gray-700 hover:bg-indigo-500 rounded-lg transition-colors">‹‹ Anterior</button>
+                <button id="add-game-btn" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition-colors font-semibold flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" /></svg>
+                    Adicionar Jogo
+                </button>
+                <button id="prev-btn" class="px-4 py-2 bg-gray-700 hover:bg-indigo-500 rounded-lg transition-colors">‹‹</button>
                 <button id="today-btn" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors font-semibold">Hoje</button>
-                <button id="next-btn" class="px-4 py-2 bg-gray-700 hover:bg-indigo-500 rounded-lg transition-colors">Próximo ››</button>
+                <button id="next-btn" class="px-4 py-2 bg-gray-700 hover:bg-indigo-500 rounded-lg transition-colors">››</button>
             </div>
         </header>
 
-        <!-- Seção de Pesquisa -->
         <div class="mb-6 p-4 bg-gray-800 bg-opacity-50 backdrop-blur-sm rounded-lg">
             <h2 class="text-lg font-semibold mb-3">Pesquisar por Jogo:</h2>
-            <div class="relative">
-                <input type="text" id="search-input" placeholder="Digite o nome do jogo..." class="w-full bg-gray-700 text-white placeholder-gray-400 rounded-lg p-2 border-2 border-transparent focus:border-indigo-500 focus:ring-0 transition">
-                <div id="autocomplete-list" class="absolute z-10 w-full bg-gray-700 rounded-b-lg mt-1 max-h-60 overflow-y-auto hidden"></div>
-            </div>
+            <div class="relative"><input type="text" id="search-input" placeholder="Digite o nome do jogo..." class="w-full bg-gray-700 text-white placeholder-gray-400 rounded-lg p-2 border-2 border-transparent focus:border-indigo-500 focus:ring-0 transition"><div id="autocomplete-list" class="absolute z-10 w-full bg-gray-700 rounded-b-lg mt-1 max-h-60 overflow-y-auto hidden"></div></div>
         </div>
 
-        <!-- Filtros -->
         <div class="mb-6 p-4 bg-gray-800 bg-opacity-50 backdrop-blur-sm rounded-lg">
             <h2 class="text-lg font-semibold mb-3">Filtrar por Provedor:</h2>
-            <div id="filters-container" class="flex flex-wrap gap-2">
-                 <div class="text-gray-400">Carregando filtros...</div>
-            </div>
+            <div id="filters-container" class="flex flex-wrap gap-2"><div class="text-gray-400">Carregando filtros...</div></div>
         </div>
 
-        <!-- Calendários -->
-        <div id="calendars-container" class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div class="text-center md:col-span-2 text-gray-400">Carregando calendários...</div>
-        </div>
+        <div id="calendars-container" class="grid grid-cols-1 md:grid-cols-2 gap-8"><div class="text-center md:col-span-2 text-gray-400">Carregando calendários...</div></div>
     </main>
 
-    <!-- Modal (Popup) -->
-    <div id="modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4 hidden">
-        <div id="modal-content" class="bg-gray-800 rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto p-6">
-            <!-- Conteúdo do modal será inserido aqui via JS -->
-        </div>
+    <!-- Modal de Visualização -->
+    <div id="modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4 hidden"><div id="modal-content" class="bg-gray-800 rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto p-6"></div></div>
+    
+    <!-- Modal de Adicionar Jogo -->
+    <div id="add-game-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4 hidden">
+        <form id="add-game-form" class="bg-gray-800 rounded-lg shadow-xl w-full max-w-xl max-h-[90vh] overflow-y-auto p-6 space-y-4">
+            <h3 class="text-2xl font-bold text-indigo-300 mb-4">Adicionar Novo Lançamento</h3>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div><label class="block text-sm font-medium text-gray-300">Data</label><input type="date" name="data" required class="w-full bg-gray-700 rounded-lg p-2 mt-1 text-white" style="color-scheme: dark;"></div>
+                <div><label class="block text-sm font-medium text-gray-300">Provedor</label><input type="text" name="provedor" required class="w-full bg-gray-700 rounded-lg p-2 mt-1"></div>
+            </div>
+            <div><label class="block text-sm font-medium text-gray-300">Jogo</label><input type="text" name="jogo" required class="w-full bg-gray-700 rounded-lg p-2 mt-1"></div>
+            <div><label class="block text-sm font-medium text-gray-300">Tipo de jogo</label><input type="text" name="tipodejogo" class="w-full bg-gray-700 rounded-lg p-2 mt-1"></div>
+            <div><label class="block text-sm font-medium text-gray-300">Imagem (URL)</label><input type="url" name="imagem" placeholder="https://..." class="w-full bg-gray-700 rounded-lg p-2 mt-1"></div>
+            <div><label class="block text-sm font-medium text-gray-300">Imagem do Provedor (URL)</label><input type="url" name="imagemprovedor" placeholder="https://..." class="w-full bg-gray-700 rounded-lg p-2 mt-1"></div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div><label class="block text-sm font-medium text-gray-300">Volatilidade</label><div id="add-volatility-meter" class="w-full h-8 grid grid-cols-4 gap-1 mt-1"></div><input type="hidden" name="volatilidade"></div>
+                <div class="space-y-2">
+                    <div><label class="block text-sm font-medium text-gray-300">Certificado</label><div class="flex gap-4 mt-2"><label class="flex items-center"><input type="radio" name="certificado" value="Sim" class="mr-2">Sim</label><label class="flex items-center"><input type="radio" name="certificado" value="Não" class="mr-2" checked>Não</label></div></div>
+                    <div><label class="block text-sm font-medium text-gray-300">Ativo no site?</label><div class="flex gap-4 mt-2"><label class="flex items-center"><input type="radio" name="ativonosite" value="Sim" class="mr-2">Sim</label><label class="flex items-center"><input type="radio" name="ativonosite" value="Não" class="mr-2" checked>Não</label></div></div>
+                </div>
+            </div>
+
+            <div><label class="block text-sm font-medium text-gray-300">Senha</label><input type="password" name="password" required class="w-full bg-gray-700 rounded-lg p-2 mt-1"></div>
+
+            <div class="flex justify-end gap-4 pt-4">
+                <button type="button" id="cancel-add-game-btn" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg">Cancelar</button>
+                <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg font-semibold">Salvar Jogo</button>
+            </div>
+        </form>
     </div>
 
-    <!-- Script Principal -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50"></div>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // --- VARIÁVEIS GLOBAIS E ESTADO ---
             const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQkH5N7Zx4YSLPJyM09ny1ro1oXd3XnQSgwVg3pl0qIcneWuy9hQops8JMBuwWw_9u0xWsk3kPgHiVa/pub?gid=0&single=true&output=csv';
+            const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzXw29TvDEogBK868soqZxRcdpiS8XHOoRKBnYogffXyToK55-ZjNTqSYXDgHQGTV8z/exec"; 
             const PLACEHOLDER_IMAGE = 'https://placehold.co/400x300/2A2E3B/FFFFFF?text=Sem+Imagem';
             const PLACEHOLDER_PROVIDER_IMAGE = 'https://placehold.co/100x40/374151/FFFFFF?text=Provedor';
-
-            let events = [];
-            let allProviders = [];
-            let selectedProviders = ['All'];
-            let searchQuery = '';
-            let currentDate = new Date(2025, 0, 1); 
-
-            const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-            const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-
-            // --- REFERÊNCIAS DO DOM ---
-            const calendarsContainer = document.getElementById('calendars-container');
-            const filtersContainer = document.getElementById('filters-container');
-            const searchInput = document.getElementById('search-input');
-            const autocompleteList = document.getElementById('autocomplete-list');
-            const prevBtn = document.getElementById('prev-btn');
-            const nextBtn = document.getElementById('next-btn');
-            const todayBtn = document.getElementById('today-btn');
-            const modal = document.getElementById('modal');
-            const modalContent = document.getElementById('modal-content');
-            const particlesContainer = document.getElementById('particles-js');
-
-            // --- FUNÇÕES DE RENDERIZAÇÃO ---
+            let events = [], allProviders = [], selectedProviders = ['All'], searchQuery = '', currentDate = new Date(2025, 0, 1);
+            const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"], weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
             
-            const getFilteredEvents = () => {
-                let filtered = events;
-
-                if (!selectedProviders.includes('All')) {
-                    filtered = filtered.filter(event => selectedProviders.includes(event.provider));
-                }
-
-                if (searchQuery) {
-                    filtered = filtered.filter(event => event.game.toLowerCase().includes(searchQuery.toLowerCase()));
-                }
-                
-                return filtered;
+            const domRefs = {
+                calendarsContainer: document.getElementById('calendars-container'), filtersContainer: document.getElementById('filters-container'), searchInput: document.getElementById('search-input'), autocompleteList: document.getElementById('autocomplete-list'), prevBtn: document.getElementById('prev-btn'), nextBtn: document.getElementById('next-btn'), todayBtn: document.getElementById('today-btn'), modal: document.getElementById('modal'), modalContent: document.getElementById('modal-content'), particlesContainer: document.getElementById('particles-js'), toastContainer: document.getElementById('toast-container'), addGameModal: document.getElementById('add-game-modal'), addGameBtn: document.getElementById('add-game-btn'), cancelAddGameBtn: document.getElementById('cancel-add-game-btn'), addGameForm: document.getElementById('add-game-form'), addVolatilityMeter: document.getElementById('add-volatility-meter')
             };
 
+            const showToast = (message, type = 'success') => {
+                const toast = document.createElement('div');
+                const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
+                toast.className = `${bgColor} text-white py-2 px-4 rounded-lg shadow-lg toast-enter`;
+                toast.textContent = message;
+                domRefs.toastContainer.appendChild(toast);
+                requestAnimationFrame(() => toast.classList.add('toast-enter-active'));
+                setTimeout(() => {
+                    toast.classList.remove('toast-enter-active');
+                    toast.classList.add('toast-exit-active');
+                    toast.addEventListener('transitionend', () => toast.remove());
+                }, 3000);
+            };
+            
+            const preloadImages = (eventsToLoad) => {
+                eventsToLoad.forEach(event => {
+                    if (event.gameImage && event.gameImage !== PLACEHOLDER_IMAGE) (new Image()).src = event.gameImage;
+                    if (event.providerImage && event.providerImage !== PLACEHOLDER_PROVIDER_IMAGE) (new Image()).src = event.providerImage;
+                });
+            };
+
+            const createVolatilityMeterHTML = (level, gameName) => {
+                const levels = { baixo: 'Baixa', medio: 'Média', alto: 'Alta', 'muito alto': 'Muito Alta' };
+                const colors = { baixo: 'bg-green-500', medio: 'bg-yellow-500', alto: 'bg-orange-500', 'muito alto': 'bg-red-500'};
+                const normalizedLevel = (level || '').toLowerCase().trim().replace('é', 'e');
+                let barsHTML = Object.keys(levels).map((key, index) => {
+                    const isActive = Object.keys(levels).indexOf(normalizedLevel) >= index;
+                    return `<div class="h-full rounded cursor-pointer ${isActive ? colors[key] : 'bg-gray-600 hover:bg-gray-500'}" data-level="${key}" data-game-name="${gameName}" title="Definir volatilidade como ${levels[key]}"></div>`;
+                }).join('');
+                return `<div><span class="text-sm font-semibold text-gray-300">Volatilidade: ${levels[normalizedLevel] || 'N/D'}</span><div class="w-full h-4 grid grid-cols-4 gap-1 mt-1">${barsHTML}</div></div>`;
+            };
+            
+            const getFilteredEvents = () => events.filter(event => (selectedProviders.includes('All') || selectedProviders.includes(event.provider)) && (!searchQuery || event.game.toLowerCase().includes(searchQuery.toLowerCase())));
+            
             const renderFilters = () => {
-                filtersContainer.innerHTML = '';
+                domRefs.filtersContainer.innerHTML = '';
                 allProviders.forEach(provider => {
-                    const isSelected = selectedProviders.includes(provider);
                     const button = document.createElement('button');
                     button.textContent = provider;
-                    button.className = `px-3 py-1 text-sm rounded-full transition-all duration-200 ${isSelected ? 'bg-indigo-500 text-white shadow-lg' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`;
-                    button.addEventListener('click', () => handleProviderToggle(provider));
-                    filtersContainer.appendChild(button);
+                    button.className = `px-3 py-1 text-sm rounded-full transition-all duration-200 ${selectedProviders.includes(provider) ? 'bg-indigo-500 text-white shadow-lg' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`;
+                    button.onclick = () => handleProviderToggle(provider);
+                    domRefs.filtersContainer.appendChild(button);
                 });
             };
 
             const renderCalendars = () => {
-                calendarsContainer.innerHTML = '';
-                const firstMonthDate = new Date(currentDate);
-                const secondMonthDate = new Date(currentDate);
-                secondMonthDate.setMonth(secondMonthDate.getMonth() + 1);
-
-                const calendarData = [
-                    { year: firstMonthDate.getFullYear(), month: firstMonthDate.getMonth() },
-                    { year: secondMonthDate.getFullYear(), month: secondMonthDate.getMonth() },
-                ];
-                
+                domRefs.calendarsContainer.innerHTML = '';
+                const calendarData = [{ year: currentDate.getFullYear(), month: currentDate.getMonth() }];
+                const nextMonthDate = new Date(currentDate);
+                nextMonthDate.setMonth(nextMonthDate.getMonth() + 1);
+                calendarData.push({ year: nextMonthDate.getFullYear(), month: nextMonthDate.getMonth() });
                 const filteredEvents = getFilteredEvents();
-
-                calendarData.forEach(({ year, month }) => {
-                    calendarsContainer.insertAdjacentHTML('beforeend', createCalendarHTML(year, month, filteredEvents));
-                });
-                
-                document.querySelectorAll('.calendar-day').forEach(dayCell => {
-                    dayCell.addEventListener('click', () => {
-                        const day = parseInt(dayCell.dataset.day);
-                        const month = parseInt(dayCell.dataset.month);
-                        const year = parseInt(dayCell.dataset.year);
-                        const clickedDate = new Date(year, month, day);
-
-                        const dayEvents = getFilteredEvents().filter(event =>
-                            event.date.getFullYear() === year &&
-                            event.date.getMonth() === month &&
-                            event.date.getDate() === day
-                        );
-
-                        if (dayEvents.length > 0) {
-                            renderModal(clickedDate, dayEvents);
-                        }
-                    });
+                const visibleEvents = filteredEvents.filter(event => calendarData.some(cal => cal.year === event.date.getFullYear() && cal.month === event.date.getMonth()));
+                preloadImages(visibleEvents);
+                calendarData.forEach(({ year, month }) => domRefs.calendarsContainer.insertAdjacentHTML('beforeend', createCalendarHTML(year, month, filteredEvents)));
+                domRefs.calendarsContainer.querySelectorAll('.calendar-day').forEach(dayCell => {
+                    const day = parseInt(dayCell.dataset.day);
+                    const dayEvents = getFilteredEvents().filter(e => e.date.getFullYear() === parseInt(dayCell.dataset.year) && e.date.getMonth() === parseInt(dayCell.dataset.month) && e.date.getDate() === day);
+                    if (dayEvents.length > 0) dayCell.onclick = () => renderModal(new Date(dayCell.dataset.year, dayCell.dataset.month, day), dayEvents);
                 });
             };
 
             const createCalendarHTML = (year, month, filteredEvents) => {
-                const today = new Date();
-                const firstDayOfMonth = new Date(year, month, 1).getDay();
-                const daysInMonth = new Date(year, month + 1, 0).getDate();
-
                 let daysHTML = '';
-                for (let i = 0; i < firstDayOfMonth; i++) {
-                    daysHTML += `<div class="p-2"></div>`;
-                }
-
-                for (let day = 1; day <= daysInMonth; day++) {
-                    const dayEvents = filteredEvents.filter(event =>
-                        event.date.getFullYear() === year &&
-                        event.date.getMonth() === month &&
-                        event.date.getDate() === day
-                    );
-                    const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === day;
-                    
+                const firstDayOfMonth = new Date(year, month, 1).getDay();
+                for (let i = 0; i < firstDayOfMonth; i++) daysHTML += `<div class="p-2"></div>`;
+                for (let day = 1; day <= new Date(year, month + 1, 0).getDate(); day++) {
+                    const dayEvents = filteredEvents.filter(e => e.date.getFullYear() === year && e.date.getMonth() === month && e.date.getDate() === day);
+                    const isToday = new Date().toDateString() === new Date(year, month, day).toDateString();
                     const isSearched = searchQuery && dayEvents.length > 0;
-                    
-                    const cellClasses = `calendar-day relative p-2 rounded-lg transition-colors duration-200 aspect-square flex items-center justify-center
-                        ${dayEvents.length > 0 ? 'cursor-pointer hover:bg-indigo-700 bg-gray-700' : 'text-gray-500'}
-                        ${isToday ? 'bg-indigo-500 !text-white font-bold' : ''}
-                        ${isSearched ? '!bg-green-500 ring-2 ring-white' : ''}`;
-                    
-                    daysHTML += `
-                        <div class="${cellClasses}" data-day="${day}" data-month="${month}" data-year="${year}">
-                            <span>${day}</span>
-                            ${dayEvents.length > 0 ? `<span class="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center shadow-md">${dayEvents.length}</span>` : ''}
-                        </div>`;
+                    daysHTML += `<div class="calendar-day relative p-2 rounded-lg transition-colors duration-200 aspect-square flex items-center justify-center ${dayEvents.length > 0 ? 'cursor-pointer hover:bg-indigo-700 bg-gray-700' : 'text-gray-500'} ${isToday ? 'bg-indigo-500 !text-white font-bold' : ''} ${isSearched ? '!bg-green-500 ring-2 ring-white' : ''}" data-day="${day}" data-month="${month}" data-year="${year}"><span>${day}</span>${dayEvents.length > 0 ? `<span class="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center shadow-md">${dayEvents.length}</span>` : ''}</div>`;
                 }
-                
-                const weekDaysHTML = weekDays.map(day => `<div class="font-semibold text-xs text-gray-400">${day}</div>`).join('');
-
-                return `
-                    <div class="bg-gray-800 bg-opacity-50 backdrop-blur-sm p-4 rounded-lg shadow-2xl">
-                        <h2 class="text-xl font-bold text-center mb-4 text-indigo-300">${monthNames[month]} ${year}</h2>
-                        <div class="grid grid-cols-7 gap-1 text-center">
-                            ${weekDaysHTML}
-                            ${daysHTML}
-                        </div>
-                    </div>`;
+                return `<div class="bg-gray-800 bg-opacity-50 backdrop-blur-sm p-4 rounded-lg shadow-2xl"><h2 class="text-xl font-bold text-center mb-4 text-indigo-300">${monthNames[month]} ${year}</h2><div class="grid grid-cols-7 gap-1 text-center">${weekDays.map(d => `<div class="font-semibold text-xs text-gray-400">${d}</div>`).join('')}${daysHTML}</div></div>`;
             };
 
             const renderModal = (date, dayEvents) => {
-                let eventsHTML = '';
-                dayEvents.forEach(event => {
-                    // CORREÇÃO: Texto alterado para H2Bet
-                    const activeInfo = event.activeOnSite.toLowerCase() === 'sim'
-                        ? `<div class="flex items-center gap-2 text-green-400"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg><span>Ativo na H2Bet: Sim</span></div>`
-                        : `<div class="flex items-center gap-2 text-red-400"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" /></svg><span>Ativo na H2Bet: Não</span></div>`;
-
-                    const certInfo = event.certificate.toLowerCase() === 'sim' 
-                        ? `<div class="flex items-center gap-2 text-green-400"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg><span>Certificado: Sim</span></div>`
-                        : `<div class="flex items-center gap-2 text-red-400"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" /></svg><span>Certificado: Não</span></div>`;
-                    
-                    const uniqueTimestamp = new Date().getTime();
-                    const gameImageUrl = `${event.gameImage}?v=${uniqueTimestamp}`;
-                    const providerImageUrl = `${event.providerImage}?v=${uniqueTimestamp}`;
-
-                    eventsHTML += `
-                        <div class="bg-gray-700 p-4 rounded-lg flex flex-col md:flex-row gap-4 items-start">
-                            <img src="${gameImageUrl}" alt="Imagem do jogo ${event.game}" class="w-full md:w-48 h-auto object-cover rounded-md flex-shrink-0" onerror="this.onerror=null;this.src='${PLACEHOLDER_IMAGE}';">
-                            <div class="flex-1">
-                                <h4 class="text-xl font-bold text-white">${event.game}</h4>
-                                <p class="text-sm bg-indigo-500 inline-block px-2 py-0.5 rounded-full my-2">${event.gameType}</p>
-                                <div class="mt-2 text-sm">${activeInfo}</div>
-                                <div class="mt-2 text-sm">${certInfo}</div>
-                                <div class="flex items-center gap-2 mt-3 pt-3 border-t border-gray-600">
-                                   <img src="${providerImageUrl}" alt="Logo de ${event.provider}" class="h-10 object-contain bg-gray-800 p-1 rounded" onerror="this.onerror=null;this.src='${PLACEHOLDER_PROVIDER_IMAGE}';">
-                                    <span class="text-gray-300 font-semibold">${event.provider}</span>
-                                </div>
-                            </div>
-                        </div>`;
+                domRefs.modalContent.innerHTML = `<div class="flex justify-between items-center mb-4"><h3 class="text-2xl font-bold text-indigo-300">Lançamentos de ${date.getDate()} de ${monthNames[date.getMonth()]}</h3><button id="close-modal-btn" class="text-gray-400 hover:text-white text-2xl">&times;</button></div><div class="space-y-4">${dayEvents.map(event => createEventCardHTML(event)).join('')}</div>`;
+                domRefs.modal.classList.remove('hidden');
+                document.getElementById('close-modal-btn').onclick = closeModal;
+                domRefs.modalContent.querySelectorAll('[data-level]').forEach(bar => {
+                    const gameName = bar.dataset.gameName;
+                    const clickedLevel = bar.dataset.level;
+                    const event = dayEvents.find(e => e.game === gameName);
+                    if (event) bar.onclick = () => promptForVolatilityChange(gameName, clickedLevel, event.volatility);
                 });
-
-                modalContent.innerHTML = `
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-2xl font-bold text-indigo-300">Lançamentos de ${date.getDate()} de ${monthNames[date.getMonth()]}</h3>
-                        <button id="close-modal-btn" class="text-gray-400 hover:text-white text-2xl">&times;</button>
-                    </div>
-                    <div class="space-y-4">${eventsHTML}</div>`;
-                
-                modal.classList.remove('hidden');
-                document.getElementById('close-modal-btn').addEventListener('click', closeModal);
+                domRefs.modalContent.querySelectorAll('.delete-game-btn').forEach(btn => {
+                    btn.onclick = () => promptForGameDeletion(btn.dataset.gameName);
+                });
             };
             
-            const closeModal = () => modal.classList.add('hidden');
+            const createEventCardHTML = (event) => {
+                const statusHTML = (label, text, condition) => `<div class="flex items-center gap-2 ${condition ? 'text-green-400' : 'text-red-400'}"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">${condition ? '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />' : '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />'}</svg><span>${label}: ${text}</span></div>`;
+                const activeInfo = statusHTML('Ativo na H2Bet', event.activeOnSite.toLowerCase() === 'sim' ? 'Sim' : 'Não', event.activeOnSite.toLowerCase() === 'sim');
+                const certInfo = statusHTML('Certificado', event.certificate.toLowerCase() === 'sim' ? 'Sim' : 'Não', event.certificate.toLowerCase() === 'sim');
+                const volatilityMeter = createVolatilityMeterHTML(event.volatility, event.game);
+                return `<div class="bg-gray-700 p-4 rounded-lg flex flex-col md:flex-row gap-4 relative group"><div class="w-full md:w-48 h-48 flex-shrink-0 flex items-center justify-center"><img src="${event.gameImage}" alt="Imagem do jogo ${event.game}" class="max-w-full max-h-full object-contain rounded-md" onerror="this.onerror=null;this.src='${PLACEHOLDER_IMAGE}';"></div><div class="flex-1 flex flex-col"><div><h4 class="text-xl font-bold text-white">${event.game}</h4><p class="text-sm bg-indigo-500 inline-block px-2 py-0.5 rounded-full my-2">${event.gameType}</p></div><div class="flex-grow grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2"><div class="space-y-2">${activeInfo}${certInfo}</div><div>${volatilityMeter}</div></div><div class="flex items-center gap-2 mt-3 pt-3 border-t border-gray-600"><img src="${event.providerImage}" alt="Logo de ${event.provider}" class="h-10 object-contain bg-gray-800 p-1 rounded" onerror="this.onerror=null;this.src='${PLACEHOLDER_PROVIDER_IMAGE}';"><span class="text-gray-300 font-semibold">${event.provider}</span></div></div><button class="delete-game-btn absolute top-2 right-2 p-2 bg-red-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" data-game-name="${event.game}" title="Remover Jogo"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg></button></div>`;
+            };
+
+            const closeModal = () => domRefs.modal.classList.add('hidden');
+            const openAddGameModal = () => { domRefs.addGameForm.reset(); renderAddVolatilityMeter(); domRefs.addGameModal.classList.remove('hidden'); };
+            const closeAddGameModal = () => domRefs.addGameModal.classList.add('hidden');
+            
+            const renderAddVolatilityMeter = (selectedLevel = '') => {
+                 const levels = { baixo: 'Baixa', medio: 'Média', alto: 'Alta', 'muito alto': 'Muito Alta' };
+                 domRefs.addVolatilityMeter.innerHTML = Object.keys(levels).map(key => `<div class="h-full rounded cursor-pointer ${key === selectedLevel ? {baixo:'bg-green-500',medio:'bg-yellow-500',alto:'bg-orange-500','muito alto':'bg-red-500'}[key] : 'bg-gray-600 hover:bg-gray-500'}" data-level="${key}" title="${levels[key]}"></div>`).join('');
+                 domRefs.addGameForm.querySelector('[name="volatilidade"]').value = selectedLevel;
+                 domRefs.addVolatilityMeter.querySelectorAll('[data-level]').forEach(bar => bar.onclick = () => renderAddVolatilityMeter(domRefs.addGameForm.querySelector('[name="volatilidade"]').value === bar.dataset.level ? '' : bar.dataset.level));
+            };
+            
+            const promptForVolatilityChange = (gameName, clickedLevel, currentVolatility) => {
+                const newLevel = clickedLevel === (currentVolatility || '').toLowerCase().trim().replace('é', 'e') ? '' : clickedLevel;
+                const password = prompt(`Para alterar a volatilidade de "${gameName}" para "${newLevel || 'Nenhuma'}", insira a senha:`);
+                if (password !== null) updateVolatilityInSheet(gameName, newLevel, password);
+            };
+
+            const promptForGameDeletion = (gameName) => {
+                if (confirm(`Tem certeza que deseja remover "${gameName}"?`)) {
+                    const password = prompt(`Para confirmar a remoção, insira a senha:`);
+                    if (password !== null) deleteGameInSheet(gameName, password);
+                }
+            };
+            
+            const sendApiRequest = async (action, data) => {
+                showToast('Processando...', 'success');
+                try {
+                    const response = await fetch(APPS_SCRIPT_URL, {
+                        method: 'POST', mode: 'cors', headers: {'Content-Type': 'text/plain;charset=utf-8'},
+                        body: JSON.stringify({ action, ...data })
+                    });
+                    const result = await response.json();
+                    if (result.status === "success") {
+                        showToast(result.message, 'success');
+                        return result;
+                    } else { throw new Error(result.message); }
+                } catch (error) {
+                    showToast(`Erro: ${error.message}`, 'error');
+                    throw error;
+                }
+            };
+
+            const updateVolatilityInSheet = async (gameName, newLevel, password) => {
+                try {
+                    await sendApiRequest('updateVolatility', { gameName, newVolatility: newLevel, password });
+                    const eventIndex = events.findIndex(e => e.game === gameName);
+                    if (eventIndex > -1) events[eventIndex].volatility = newLevel;
+                    const currentModalDate = new Date(domRefs.modalContent.querySelector('h3').textContent.split(' de ').slice(1).join(' '));
+                    const dayEvents = getFilteredEvents().filter(e => e.date.toDateString() === currentModalDate.toDateString());
+                    renderModal(currentModalDate, dayEvents);
+                } catch (error) {/* Ignora o erro, pois o toast já foi mostrado */}
+            };
+
+            const deleteGameInSheet = async (gameName, password) => {
+                try {
+                    await sendApiRequest('deleteGame', { gameName, password });
+                    events = events.filter(e => e.game !== gameName);
+                    closeModal();
+                    renderCalendars();
+                } catch (error) {/* Ignora o erro, pois o toast já foi mostrado */}
+            };
+            
+            const handleAddGameSubmit = async (e) => {
+                e.preventDefault();
+                const formData = new FormData(domRefs.addGameForm);
+                const password = formData.get('password');
+                if (!password) { return showToast('Por favor, insira a senha.', 'error'); }
+                
+                const rawDate = formData.get('data');
+                const [year, month, day] = rawDate.split('-');
+                
+                const gameData = {
+                    data: `${day}/${month}/${year}`,
+                    provedor: formData.get('provedor'),
+                    jogo: formData.get('jogo'),
+                    tipodejogo: formData.get('tipodejogo'),
+                    imagem: formData.get('imagem'),
+                    imagemprovedor: formData.get('imagemprovedor'),
+                    volatilidade: formData.get('volatilidade'),
+                    certificado: formData.get('certificado'),
+                    ativonosite: formData.get('ativonosite')
+                };
+
+                try {
+                    await sendApiRequest('addGame', { password, gameData });
+                    closeAddGameModal();
+                    fetchData(); // Recarrega todos os dados para garantir consistência
+                } catch (error) {/* Ignora o erro, pois o toast já foi mostrado */}
+            };
+            
+            const handleProviderToggle = (provider) => {
+                selectedProviders = provider === 'All' ? ['All'] : (selectedProviders.includes('All') ? [provider] : (selectedProviders.includes(provider) ? selectedProviders.filter(p => p !== provider) : [...selectedProviders, provider]));
+                if (selectedProviders.length === 0) selectedProviders = ['All'];
+                renderFilters();
+                renderCalendars();
+            };
+            
+            const handleSearchInput = (e) => {
+                searchQuery = e.target.value;
+                const suggestions = getFilteredEvents().slice(0, 5);
+                if (searchQuery && suggestions.length > 0) {
+                    domRefs.autocompleteList.innerHTML = suggestions.map(event => `<div class="p-2 hover:bg-indigo-600 cursor-pointer" data-game="${event.game}">${event.game}</div>`).join('');
+                    domRefs.autocompleteList.classList.remove('hidden');
+                } else {
+                    domRefs.autocompleteList.classList.add('hidden');
+                }
+                renderCalendars();
+            };
+            
+            const handleSuggestionClick = (e) => {
+                if (e.target.dataset.game) {
+                    const selectedGame = e.target.dataset.game;
+                    domRefs.searchInput.value = selectedGame;
+                    searchQuery = selectedGame;
+                    domRefs.autocompleteList.classList.add('hidden');
+                    const event = events.find(ev => ev.game === selectedGame);
+                    if (event) { currentDate = new Date(event.date.getFullYear(), event.date.getMonth(), 1); }
+                    renderCalendars();
+                }
+            };
+
+            const fetchData = async () => {
+                try {
+                    const response = await fetch(`${CSV_URL}&cache_bust=${new Date().getTime()}`);
+                    const csvText = await response.text();
+                    const allLines = csvText.split('\r\n');
+                    const header = allLines.shift().split(',').map(h => h.trim().replace(/"/g, ''));
+                    const headerMap = header.reduce((acc, curr, index) => ({...acc, [curr]: index }), {});
+
+                    events = allLines.map(line => {
+                        const columns = line.split(',').map(c => c.trim().replace(/"/g, ''));
+                        if (columns.length < header.length) return null;
+                        
+                        const data = {};
+                        Object.keys(headerMap).forEach(key => data[key] = columns[headerMap[key]]);
+                        
+                        const [day, month, year] = data.Data.split('/');
+                        const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+
+                        if (!data.Data || !data.Provedor || !data.Jogo || isNaN(date.getTime())) return null;
+
+                        return { date, provider: data.Provedor, game: data.Jogo, gameType: data['Tipo de jogo'], gameImage: (data.Imagem && data.Imagem.startsWith('http')) ? data.Imagem : PLACEHOLDER_IMAGE, providerImage: (data['Imagem provedor'] && data['Imagem provedor'].startsWith('http')) ? data['Imagem provedor'] : PLACEHOLDER_PROVIDER_IMAGE, certificate: data.Certificado || 'Não', activeOnSite: data['Ativo no site?'] || 'Não', volatility: data.Volatilidade || 'N/D' };
+                    }).filter(Boolean);
+
+                    allProviders = ['All', ...new Set(events.map(e => e.provider).filter(p => p))];
+                    renderFilters();
+                    renderCalendars();
+                } catch (error) {
+                    console.error("Erro ao buscar dados do CSV:", error);
+                    domRefs.calendarsContainer.innerHTML = `<div class="text-center md:col-span-2 text-red-400">Falha ao carregar dados.</div>`;
+                }
+            };
 
             const renderParticles = () => {
                 for (let i = 0; i < 50; i++) {
@@ -285,124 +378,22 @@
                     particle.style.top = `${Math.random() * 100}%`;
                     particle.style.animationDuration = `${Math.random() * 20 + 10}s`;
                     particle.style.animationDelay = `${Math.random() * -30}s`;
-                    particlesContainer.appendChild(particle);
+                    domRefs.particlesContainer.appendChild(particle);
                 }
             };
 
-            const handleProviderToggle = (provider) => {
-                if (provider === 'All') {
-                    selectedProviders = ['All'];
-                } else {
-                    let newSelection = selectedProviders.filter(p => p !== 'All');
-                    if (newSelection.includes(provider)) {
-                        newSelection = newSelection.filter(p => p !== provider);
-                    } else {
-                        newSelection.push(provider);
-                    }
-                    selectedProviders = newSelection.length === 0 ? ['All'] : newSelection;
-                }
-                renderFilters();
-                renderCalendars();
-            };
-            
-            const handleSearchInput = (e) => {
-                searchQuery = e.target.value;
-                const suggestions = getFilteredEvents().filter((_, index) => index < 5);
-                
-                if (searchQuery && suggestions.length > 0) {
-                    autocompleteList.innerHTML = suggestions.map(event => 
-                        `<div class="p-2 hover:bg-indigo-600 cursor-pointer" data-game="${event.game}">${event.game}</div>`
-                    ).join('');
-                    autocompleteList.classList.remove('hidden');
-                } else {
-                    autocompleteList.classList.add('hidden');
-                }
-                
-                renderCalendars();
-            };
-            
-            const handleSuggestionClick = (e) => {
-                if (e.target.dataset.game) {
-                    const selectedGame = e.target.dataset.game;
-                    searchInput.value = selectedGame;
-                    searchQuery = selectedGame;
-                    autocompleteList.classList.add('hidden');
-                    
-                    const event = events.find(ev => ev.game === selectedGame);
-                    if (event) {
-                        currentDate = new Date(event.date);
-                        currentDate.setDate(1);
-                    }
+            // INICIA APLICAÇÃO E EVENTOS
+            domRefs.addGameBtn.onclick = openAddGameModal;
+            domRefs.cancelAddGameBtn.onclick = closeAddGameModal;
+            domRefs.addGameForm.onsubmit = handleAddGameSubmit;
+            domRefs.prevBtn.onclick = () => { currentDate.setMonth(currentDate.getMonth() - 2); renderCalendars(); };
+            domRefs.nextBtn.onclick = () => { currentDate.setMonth(currentDate.getMonth() + 2); renderCalendars(); };
+            domRefs.todayBtn.onclick = () => { currentDate = new Date(); renderCalendars(); };
+            domRefs.modal.onclick = (e) => { if (e.target === domRefs.modal) closeModal(); };
+            domRefs.searchInput.oninput = handleSearchInput;
+            domRefs.autocompleteList.onclick = handleSuggestionClick;
+            document.onclick = (e) => { if (!e.target.closest('.relative')) domRefs.autocompleteList.classList.add('hidden'); };
 
-                    renderCalendars();
-                }
-            };
-
-            // --- LÓGICA DE INICIALIZAÇÃO ---
-            const fetchData = async () => {
-                try {
-                    const response = await fetch(`${CSV_URL}&cache_bust=${new Date().getTime()}`);
-                    const csvText = await response.text();
-                    const allLines = csvText.split('\r\n');
-                    
-                    // MELHORIA: Lê o cabeçalho para tornar a ordem das colunas flexível
-                    const header = allLines.shift().split(',').map(h => h.trim().replace(/"/g, ''));
-                    const headerMap = header.reduce((acc, curr, index) => ({...acc, [curr]: index }), {});
-
-                    const parsedEvents = allLines.map(line => {
-                        const columns = line.split(',').map(c => c.trim().replace(/"/g, ''));
-                        if (columns.length < header.length) return null;
-                        
-                        // MELHORIA: Usa o mapa do cabeçalho para pegar os dados corretos
-                        const dateStr = columns[headerMap['Data']];
-                        const provider = columns[headerMap['Provedor']];
-                        const game = columns[headerMap['Jogo']];
-                        const gameType = columns[headerMap['Tipo de jogo']];
-                        const certificate = columns[headerMap['Certificado']];
-                        const activeOnSite = columns[headerMap['Ativo no site?']];
-                        const providerImage = columns[headerMap['Imagem provedor']];
-                        const gameImage = columns[headerMap['Imagem']];
-
-                        if (!dateStr || !provider || !game) return null;
-
-                        const [day, month, year] = dateStr.split('/');
-                        const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-
-                        if (isNaN(date.getTime())) return null;
-
-                        return { 
-                            date, 
-                            provider, 
-                            game, 
-                            gameType, 
-                            gameImage: gameImage && gameImage.startsWith('http') ? gameImage : PLACEHOLDER_IMAGE, 
-                            providerImage: providerImage && providerImage.startsWith('http') ? providerImage : PLACEHOLDER_PROVIDER_IMAGE, 
-                            certificate: certificate || 'Não',
-                            activeOnSite: activeOnSite || 'Não'
-                        };
-                    }).filter(Boolean);
-
-                    events = parsedEvents;
-                    allProviders = ['All', ...new Set(parsedEvents.map(e => e.provider).filter(p => p))];
-                    
-                    renderFilters();
-                    renderCalendars();
-                } catch (error) {
-                    console.error("Erro ao buscar dados do CSV:", error);
-                    calendarsContainer.innerHTML = `<div class="text-center md:col-span-2 text-red-400">Falha ao carregar dados. Verifique a URL da planilha e a conexão.</div>`;
-                }
-            };
-
-            // Adiciona os eventos
-            prevBtn.addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth() - 2); renderCalendars(); });
-            nextBtn.addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth() + 2); renderCalendars(); });
-            todayBtn.addEventListener('click', () => { currentDate = new Date(); renderCalendars(); });
-            modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
-            searchInput.addEventListener('input', handleSearchInput);
-            autocompleteList.addEventListener('click', handleSuggestionClick);
-            document.addEventListener('click', (e) => { if (!e.target.closest('.relative')) autocompleteList.classList.add('hidden'); });
-
-            // Inicia a aplicação
             renderParticles();
             fetchData();
         });
