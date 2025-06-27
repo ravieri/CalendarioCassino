@@ -54,15 +54,27 @@
             </div>
         </header>
 
-        <div class="mb-6 p-4 bg-gray-800 bg-opacity-50 backdrop-blur-sm rounded-lg">
-            <h2 class="text-lg font-semibold mb-3">Pesquisar por Jogo:</h2>
-            <div class="relative"><input type="text" id="search-input" placeholder="Digite o nome do jogo..." class="w-full bg-gray-700 text-white placeholder-gray-400 rounded-lg p-2 border-2 border-transparent focus:border-indigo-500 focus:ring-0 transition"><div id="autocomplete-list" class="absolute z-10 w-full bg-gray-700 rounded-b-lg mt-1 max-h-60 overflow-y-auto hidden"></div></div>
+        <!-- Seção de Controles (Pesquisa e Filtros) -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+            <!-- Pesquisa -->
+            <div class="relative">
+                <label for="search-input" class="block text-sm font-medium text-gray-300 mb-1">Pesquisar por Jogo:</label>
+                <input type="text" id="search-input" placeholder="Digite o nome do jogo..." class="w-full bg-gray-700 text-white placeholder-gray-400 rounded-lg p-2 border-2 border-transparent focus:border-indigo-500 focus:ring-0 transition">
+                <div id="autocomplete-list" class="absolute z-20 w-full bg-gray-700 rounded-b-lg mt-1 max-h-60 overflow-y-auto hidden"></div>
+            </div>
+            <!-- Filtro Retrátil -->
+            <div class="relative">
+                 <label for="toggle-filter-btn" class="block text-sm font-medium text-gray-300 mb-1">Filtrar por Provedor:</label>
+                <button id="toggle-filter-btn" class="w-full flex justify-between items-center bg-gray-700 rounded-lg p-2">
+                    <span id="filter-label">Todos os Provedores</span>
+                    <svg id="filter-chevron" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                </button>
+                <div id="filter-options" class="absolute hidden z-20 w-full mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-4 max-h-60 overflow-y-auto">
+                    <div id="filters-container" class="flex flex-wrap gap-2"><div class="text-gray-400">Carregando filtros...</div></div>
+                </div>
+            </div>
         </div>
 
-        <div class="mb-6 p-4 bg-gray-800 bg-opacity-50 backdrop-blur-sm rounded-lg">
-            <h2 class="text-lg font-semibold mb-3">Filtrar por Provedor:</h2>
-            <div id="filters-container" class="flex flex-wrap gap-2"><div class="text-gray-400">Carregando filtros...</div></div>
-        </div>
 
         <div id="calendars-container" class="grid grid-cols-1 md:grid-cols-2 gap-8"><div class="text-center md:col-span-2 text-gray-400">Carregando calendários...</div></div>
     </main>
@@ -113,7 +125,26 @@
             const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"], weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
             
             const domRefs = {
-                calendarsContainer: document.getElementById('calendars-container'), filtersContainer: document.getElementById('filters-container'), searchInput: document.getElementById('search-input'), autocompleteList: document.getElementById('autocomplete-list'), prevBtn: document.getElementById('prev-btn'), nextBtn: document.getElementById('next-btn'), todayBtn: document.getElementById('today-btn'), modal: document.getElementById('modal'), modalContent: document.getElementById('modal-content'), particlesContainer: document.getElementById('particles-js'), toastContainer: document.getElementById('toast-container'), addGameModal: document.getElementById('add-game-modal'), addGameBtn: document.getElementById('add-game-btn'), cancelAddGameBtn: document.getElementById('cancel-add-game-btn'), addGameForm: document.getElementById('add-game-form'), addVolatilityMeter: document.getElementById('add-volatility-meter')
+                calendarsContainer: document.getElementById('calendars-container'), 
+                filtersContainer: document.getElementById('filters-container'), 
+                searchInput: document.getElementById('search-input'), 
+                autocompleteList: document.getElementById('autocomplete-list'), 
+                prevBtn: document.getElementById('prev-btn'), 
+                nextBtn: document.getElementById('next-btn'), 
+                todayBtn: document.getElementById('today-btn'), 
+                modal: document.getElementById('modal'), 
+                modalContent: document.getElementById('modal-content'), 
+                particlesContainer: document.getElementById('particles-js'), 
+                toastContainer: document.getElementById('toast-container'), 
+                addGameModal: document.getElementById('add-game-modal'), 
+                addGameBtn: document.getElementById('add-game-btn'), 
+                cancelAddGameBtn: document.getElementById('cancel-add-game-btn'), 
+                addGameForm: document.getElementById('add-game-form'), 
+                addVolatilityMeter: document.getElementById('add-volatility-meter'),
+                toggleFilterBtn: document.getElementById('toggle-filter-btn'),
+                filterOptions: document.getElementById('filter-options'),
+                filterLabel: document.getElementById('filter-label'),
+                filterChevron: document.getElementById('filter-chevron')
             };
 
             const showToast = (message, type = 'success') => {
@@ -141,8 +172,8 @@
                 const levels = { baixo: 'Baixa', medio: 'Média', alto: 'Alta', 'muito alto': 'Muito Alta' };
                 const colors = { baixo: 'bg-green-500', medio: 'bg-yellow-500', alto: 'bg-orange-500', 'muito alto': 'bg-red-500'};
                 const normalizedLevel = (level || '').toLowerCase().trim().replace('é', 'e');
-                let barsHTML = Object.keys(levels).map((key, index) => {
-                    const isActive = Object.keys(levels).indexOf(normalizedLevel) >= index;
+                let barsHTML = Object.keys(levels).map((key) => {
+                    const isActive = Object.keys(levels).indexOf(normalizedLevel) >= Object.keys(levels).indexOf(key);
                     return `<div class="h-full rounded cursor-pointer ${isActive ? colors[key] : 'bg-gray-600 hover:bg-gray-500'}" data-level="${key}" data-game-name="${gameName}" title="Definir volatilidade como ${levels[key]}"></div>`;
                 }).join('');
                 return `<div><span class="text-sm font-semibold text-gray-300">Volatilidade: ${levels[normalizedLevel] || 'N/D'}</span><div class="w-full h-4 grid grid-cols-4 gap-1 mt-1">${barsHTML}</div></div>`;
@@ -159,6 +190,7 @@
                     button.onclick = () => handleProviderToggle(provider);
                     domRefs.filtersContainer.appendChild(button);
                 });
+                updateFilterLabel();
             };
 
             const renderCalendars = () => {
@@ -300,13 +332,32 @@
                 try {
                     await sendApiRequest('addGame', { password, gameData });
                     closeAddGameModal();
-                    fetchData(); // Recarrega todos os dados para garantir consistência
+                    fetchData(); 
                 } catch (error) {/* Ignora o erro, pois o toast já foi mostrado */}
+            };
+
+            const updateFilterLabel = () => {
+                if (selectedProviders.length === 0 || selectedProviders.includes('All')) {
+                    domRefs.filterLabel.textContent = 'Todos os Provedores';
+                } else if (selectedProviders.length === 1) {
+                    domRefs.filterLabel.textContent = selectedProviders[0];
+                } else {
+                    domRefs.filterLabel.textContent = `${selectedProviders.length} provedores selecionados`;
+                }
             };
             
             const handleProviderToggle = (provider) => {
-                selectedProviders = provider === 'All' ? ['All'] : (selectedProviders.includes('All') ? [provider] : (selectedProviders.includes(provider) ? selectedProviders.filter(p => p !== provider) : [...selectedProviders, provider]));
-                if (selectedProviders.length === 0) selectedProviders = ['All'];
+                if (provider === 'All') {
+                    selectedProviders = ['All'];
+                } else {
+                    let newSelection = selectedProviders.filter(p => p !== 'All');
+                    if (newSelection.includes(provider)) {
+                        newSelection = newSelection.filter(p => p !== provider);
+                    } else {
+                        newSelection.push(provider);
+                    }
+                    selectedProviders = newSelection.length === 0 ? ['All'] : newSelection;
+                }
                 renderFilters();
                 renderCalendars();
             };
@@ -392,7 +443,17 @@
             domRefs.modal.onclick = (e) => { if (e.target === domRefs.modal) closeModal(); };
             domRefs.searchInput.oninput = handleSearchInput;
             domRefs.autocompleteList.onclick = handleSuggestionClick;
-            document.onclick = (e) => { if (!e.target.closest('.relative')) domRefs.autocompleteList.classList.add('hidden'); };
+            domRefs.toggleFilterBtn.onclick = () => {
+                domRefs.filterOptions.classList.toggle('hidden');
+                domRefs.filterChevron.classList.toggle('rotate-180');
+            };
+            document.onclick = (e) => { 
+                if (!e.target.closest('.relative')) domRefs.autocompleteList.classList.add('hidden');
+                if (!domRefs.toggleFilterBtn.contains(e.target) && !domRefs.filterOptions.contains(e.target)) {
+                    domRefs.filterOptions.classList.add('hidden');
+                    domRefs.filterChevron.classList.remove('rotate-180');
+                }
+            };
 
             renderParticles();
             fetchData();
