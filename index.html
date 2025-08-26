@@ -4,9 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calendário de Lançamentos de Cassino</title>
-    <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Fontes do Google -->
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-auth-compat.js"></script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -26,7 +29,7 @@
         /* Estilos Customizados */
         body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
         @keyframes move { 100% { transform: translate3d(0, 0, 1px) rotate(360deg); } }
-        .particle { position: absolute; border-radius: 50%; background: rgba(129, 140, 248, 0.2); animation: move linear infinite; transform-origin: center center; }
+        .particle { position: absolute; border-radius: 50%; background: rgba(192, 132, 252, 0.2); animation: move linear infinite; transform-origin: center center; }
         
         /* Animação para o Toast */
         .toast-enter { transform: translateY(100%); opacity: 0; }
@@ -56,10 +59,10 @@
         .carousel-container {
             overflow: hidden;
             width: 100%;
-            cursor: grab; /* MUDANÇA: Cursor para indicar que é arrastável */
+            cursor: grab;
         }
         .carousel-container.grabbing {
-            cursor: grabbing; /* MUDANÇA: Cursor durante o arraste */
+            cursor: grabbing;
         }
         .carousel-wrapper {
             display: flex;
@@ -71,7 +74,6 @@
             padding: 0 8px;
             position: relative;
         }
-        /* MUDANÇA: Impede que a imagem seja arrastada separadamente */
         .carousel-slide img {
             width: 100%;
             height: 120px; 
@@ -82,7 +84,7 @@
             pointer-events: none; /* Impede eventos de mouse na imagem */
         }
         .carousel-slide:hover img {
-            border-color: #818cf8; /* indigo-400 */
+            border-color: #c084fc; /* purple-400 */
         }
         .carousel-slide .slide-title {
             position: absolute;
@@ -109,42 +111,38 @@
         }
     </style>
 </head>
-<body class="bg-gray-900 text-white font-sans overflow-x-hidden">
+<body class="bg-slate-900 text-white font-sans overflow-x-hidden">
 
-    <!-- Efeito de Partículas no Fundo -->
     <div id="particles-js" class="absolute inset-0 z-0 overflow-hidden"></div>
 
-    <!-- Conteúdo Principal -->
     <main class="relative z-10 max-w-6xl mx-auto p-4 md:p-8">
-        <!-- --- HEADER MODIFICADO --- -->
         <header class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-            <!-- Carrossel de Destaques -->
             <div id="highlight-carousel" class="carousel-container w-full md:w-2/3">
                 <div id="carousel-wrapper" class="carousel-wrapper">
-                    <!-- Slides serão inseridos aqui pelo JS -->
-                </div>
+                    </div>
             </div>
             
             <div class="flex items-center gap-2 flex-shrink-0">
-                <button id="add-game-btn" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition-colors font-semibold flex items-center gap-2">
+                <button id="login-btn" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors font-semibold">Login</button>
+                
+                <button id="add-game-btn" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors font-semibold flex items-center gap-2 hidden">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" /></svg>
                     Adicionar Jogo
                 </button>
-                <button id="prev-btn" class="px-4 py-2 bg-gray-700 hover:bg-indigo-500 rounded-lg transition-colors">‹‹</button>
-                <button id="today-btn" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors font-semibold">Hoje</button>
-                <button id="next-btn" class="px-4 py-2 bg-gray-700 hover:bg-indigo-500 rounded-lg transition-colors">››</button>
+                <button id="logout-btn" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg transition-colors font-semibold hidden">Logout</button>
+                
+                <button id="prev-btn" class="px-4 py-2 bg-gray-700 hover:bg-purple-500 rounded-lg transition-colors">‹‹</button>
+                <button id="today-btn" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors font-semibold">Hoje</button>
+                <button id="next-btn" class="px-4 py-2 bg-gray-700 hover:bg-purple-500 rounded-lg transition-colors">››</button>
             </div>
         </header>
 
-        <!-- Seção de Controles (Pesquisa e Filtros) -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-            <!-- Pesquisa -->
             <div class="relative">
                 <label for="search-input" class="block text-sm font-medium text-gray-300 mb-1">Pesquisar por Jogo:</label>
-                <input type="text" id="search-input" placeholder="Digite o nome do jogo..." class="w-full bg-gray-700 text-white placeholder-gray-400 rounded-lg p-2 border-2 border-transparent focus:border-indigo-500 focus:ring-0 transition">
+                <input type="text" id="search-input" placeholder="Digite o nome do jogo..." class="w-full bg-gray-700 text-white placeholder-gray-400 rounded-lg p-2 border-2 border-transparent focus:border-purple-500 focus:ring-0 transition">
                 <div id="autocomplete-list" class="absolute z-20 w-full bg-gray-700 rounded-b-lg mt-1 max-h-60 overflow-y-auto hidden"></div>
             </div>
-            <!-- Filtro Retrátil -->
             <div class="relative">
                  <label for="toggle-filter-btn" class="block text-sm font-medium text-gray-300 mb-1">Filtrar por Provedor:</label>
                 <button id="toggle-filter-btn" class="w-full flex justify-between items-center bg-gray-700 rounded-lg p-2">
@@ -160,13 +158,11 @@
         <div id="calendars-container" class="grid grid-cols-1 md:grid-cols-2 gap-6"><div class="text-center md:col-span-2 text-gray-400">Carregando calendários...</div></div>
     </main>
 
-    <!-- Modal de Visualização -->
     <div id="modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4 hidden"><div id="modal-content" class="bg-gray-800 rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto p-6"></div></div>
     
-    <!-- Modal de Adicionar Jogo -->
     <div id="add-game-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4 hidden">
         <form id="add-game-form" class="bg-gray-800 rounded-lg shadow-xl w-full max-w-xl max-h-[90vh] overflow-y-auto p-6 space-y-4">
-            <h3 class="text-2xl font-bold text-indigo-300 mb-4">Adicionar Novo Lançamento</h3>
+            <h3 class="text-2xl font-bold text-purple-300 mb-4">Adicionar Novo Lançamento</h3>
             
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div><label class="block text-sm font-medium text-gray-300">Data</label><input type="date" name="data" required class="w-full bg-gray-700 rounded-lg p-2 mt-1 text-white" style="color-scheme: dark;"></div>
@@ -186,8 +182,6 @@
                 </div>
             </div>
 
-            <div><label class="block text-sm font-medium text-gray-300">Senha</label><input type="password" name="password" required class="w-full bg-gray-700 rounded-lg p-2 mt-1"></div>
-
             <div class="flex justify-end gap-4 pt-4">
                 <button type="button" id="cancel-add-game-btn" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg">Cancelar</button>
                 <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg font-semibold">Salvar Jogo</button>
@@ -195,13 +189,60 @@
         </form>
     </div>
 
+    <div id="login-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4 hidden">
+        <form id="login-form" class="bg-gray-800 rounded-lg shadow-xl w-full max-w-sm p-6 space-y-4">
+            <h3 class="text-2xl font-bold text-purple-300 mb-4">Login de Administrador</h3>
+            <div>
+                <label class="block text-sm font-medium text-gray-300">E-mail</label>
+                <input type="email" name="email" required class="w-full bg-gray-700 rounded-lg p-2 mt-1">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-300">Senha</label>
+                <input type="password" name="password" required class="w-full bg-gray-700 rounded-lg p-2 mt-1">
+            </div>
+            <div class="flex justify-end gap-4 pt-4">
+                <button type="button" id="cancel-login-btn" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg">Cancelar</button>
+                <button type="submit" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg font-semibold">Entrar</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="add-provider-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4 hidden">
+        <form id="add-provider-form" class="bg-gray-900 rounded-lg shadow-xl w-full max-w-sm p-6 space-y-4">
+            <h3 class="text-2xl font-bold text-purple-300 mb-4">Adicionar Novo Provedor</h3>
+            <div>
+                <label class="block text-sm font-medium text-gray-300">Nome do Provedor</label>
+                <input type="text" name="provider-name" required class="w-full bg-gray-700 rounded-lg p-2 mt-1">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-300">URL da Imagem (Logo)</label>
+                <input type="url" name="provider-logo" required placeholder="https://..." class="w-full bg-gray-700 rounded-lg p-2 mt-1">
+            </div>
+            <div class="flex justify-end gap-4 pt-4">
+                <button type="button" id="cancel-add-provider-btn" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg">Cancelar</button>
+                <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg font-semibold">Salvar Provedor</button>
+            </div>
+        </form>
+    </div>
+
     <div id="toast-container" class="fixed bottom-5 right-5 z-50"></div>
 
     <script>
+        // --- INICIALIZAÇÃO DO FIREBASE ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyDozLqKLCJaAdEi5yS1FooiTvrNI3CRmSw",
+            authDomain: "calendarioh-6da51.firebaseapp.com",
+            projectId: "calendarioh-6da51",
+            storageBucket: "calendarioh-6da51.firebasestorage.app",
+            messagingSenderId: "731803901078",
+            appId: "1:731803901078:web:739b77ea4b358f230df6b7"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+        // --- FIM DA INICIALIZAÇÃO ---
+
         document.addEventListener('DOMContentLoaded', () => {
-            const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQTcei9_JVNAn0X3-RmdIZVzNp1__l676Hw8DK5sAuodNKyVyR194uqgRzBfZOH2fFDdmFBGxC6l7z_/pub?gid=0&single=true&output=csv';
-            const PROVIDERS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQTcei9_JVNAn0X3-RmdIZVzNp1__l676Hw8DK5sAuodNKyVyR194uqgRzBfZOH2fFDdmFBGxC6l7z_/pub?gid=2003849615&single=true&output=csv';
-            const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwOxZjM5AceW0SFMHwTXueblPfYvwXsvLLH9iq7618a1cac-SDN_K1WH553wBDg3RLl/exec"; 
             const PLACEHOLDER_IMAGE = 'https://placehold.co/400x300/2A2E3B/FFFFFF?text=Sem+Imagem';
             const PLACEHOLDER_PROVIDER_IMAGE = 'https://placehold.co/100x40/374151/FFFFFF?text=Provedor';
             let events = [], allProviders = [], providerData = [], selectedProviders = ['All'], searchQuery = '', currentDate = new Date(2025, 0, 1);
@@ -211,7 +252,78 @@
             const domRefs = {
                 calendarsContainer: document.getElementById('calendars-container'), filtersContainer: document.getElementById('filters-container'), searchInput: document.getElementById('search-input'), autocompleteList: document.getElementById('autocomplete-list'), prevBtn: document.getElementById('prev-btn'), nextBtn: document.getElementById('next-btn'), todayBtn: document.getElementById('today-btn'), modal: document.getElementById('modal'), modalContent: document.getElementById('modal-content'), particlesContainer: document.getElementById('particles-js'), toastContainer: document.getElementById('toast-container'), addGameModal: document.getElementById('add-game-modal'), addGameBtn: document.getElementById('add-game-btn'), cancelAddGameBtn: document.getElementById('cancel-add-game-btn'), addGameForm: document.getElementById('add-game-form'), addVolatilityMeter: document.getElementById('add-volatility-meter'), toggleFilterBtn: document.getElementById('toggle-filter-btn'), filterOptions: document.getElementById('filter-options'), filterLabel: document.getElementById('filter-label'), filterChevron: document.getElementById('filter-chevron'),
                 carouselContainer: document.getElementById('highlight-carousel'),
-                carouselWrapper: document.getElementById('carousel-wrapper') 
+                carouselWrapper: document.getElementById('carousel-wrapper'),
+                loginBtn: document.getElementById('login-btn'),
+                logoutBtn: document.getElementById('logout-btn'),
+                loginModal: document.getElementById('login-modal'),
+                loginForm: document.getElementById('login-form'),
+                cancelLoginBtn: document.getElementById('cancel-login-btn'),
+                addProviderModal: document.getElementById('add-provider-modal'),
+                addProviderForm: document.getElementById('add-provider-form'),
+                cancelAddProviderBtn: document.getElementById('cancel-add-provider-btn'),
+            };
+
+            // "Cérebro" da Autenticação: Fica ouvindo mudanças no estado de login
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    console.log("Usuário está logado:", user.email);
+                    domRefs.loginBtn.classList.add('hidden');
+                    domRefs.addGameBtn.classList.remove('hidden');
+                    domRefs.logoutBtn.classList.remove('hidden');
+                } else {
+                    console.log("Nenhum usuário logado.");
+                    domRefs.loginBtn.classList.remove('hidden');
+                    domRefs.addGameBtn.classList.add('hidden');
+                    domRefs.logoutBtn.classList.add('hidden');
+                }
+            });
+            
+            const fetchData = async () => {
+                try {
+                    console.log("Buscando dados do Firebase...");
+                    const [jogosSnapshot, provedoresSnapshot] = await Promise.all([
+                        db.collection('jogos').get(),
+                        db.collection('provedores').orderBy('nome').get()
+                    ]);
+                    console.log(`Encontrados ${jogosSnapshot.size} jogos e ${provedoresSnapshot.size} provedores.`);
+
+                    providerData = [];
+                    provedoresSnapshot.forEach(doc => {
+                        const data = doc.data();
+                        providerData.push({ name: data.nome, link: data.logoUrl });
+                    });
+                    allProviders = ['All', ...providerData.map(p => p.name)];
+
+                    events = [];
+                    jogosSnapshot.forEach(doc => {
+                        const data = doc.data();
+                        if (!data.Data || !data.Jogo) {
+                            console.warn("Jogo pulado por falta de dados (campo 'Data' ou 'Jogo' ausente):", doc.id);
+                            return;
+                        }
+                        const date = data.Data.toDate();
+                        events.push({
+                            date,
+                            provider: data.Provedor,
+                            game: data.Jogo.trim(),
+                            gameType: data['Tipo de jogo'] || '',
+                            gameImage: (data.Imagem && data.Imagem.startsWith('http')) ? data.Imagem : PLACEHOLDER_IMAGE,
+                            providerImage: (data['Imagem provedor'] && data['Imagem provedor'].startsWith('http')) ? data['Imagem provedor'] : PLACEHOLDER_PROVIDER_IMAGE,
+                            certificate: data.Certificado || 'Não',
+                            activeOnSite: data['Ativo no site?'] || 'Não',
+                            volatility: data.Volatilidade || 'N/D',
+                            destaque: data.Destaque || 'N'
+                        });
+                    });
+                    console.log(`Carregados ${events.length} jogos válidos para o calendário.`);
+
+                    renderFilters();
+                    renderCalendars();
+                    renderCarousel();
+                } catch (error) {
+                    console.error("Erro ao buscar dados:", error);
+                    domRefs.calendarsContainer.innerHTML = `<div class="text-center md-col-span-2 text-red-400">Falha ao carregar dados.</div>`;
+                }
             };
 
             const showToast = (message, type = 'success') => {
@@ -253,7 +365,7 @@
                 allProviders.forEach(provider => {
                     const button = document.createElement('button');
                     button.textContent = provider;
-                    button.className = `px-3 py-1 text-sm rounded-full transition-all duration-200 ${selectedProviders.includes(provider) ? 'bg-indigo-500 text-white shadow-lg' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`;
+                    button.className = `px-3 py-1 text-sm rounded-full transition-all duration-200 ${selectedProviders.includes(provider) ? 'bg-purple-500 text-white shadow-lg' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`;
                     button.onclick = () => handleProviderToggle(provider);
                     domRefs.filtersContainer.appendChild(button);
                 });
@@ -288,14 +400,14 @@
                     const hasHighlight = dayEvents.some(e => e.destaque && e.destaque.toLowerCase() === 's');
                     
                     const dayClasses = `calendar-day relative p-2 rounded-lg transition-colors duration-200 aspect-square flex items-center justify-center 
-                        ${dayEvents.length > 0 ? 'cursor-pointer hover:bg-indigo-700 bg-gray-700' : 'text-gray-500'} 
-                        ${isToday ? 'bg-indigo-500 !text-white font-bold' : ''} 
+                        ${dayEvents.length > 0 ? 'cursor-pointer hover:bg-purple-700 bg-gray-700' : 'text-gray-500'} 
+                        ${isToday ? 'bg-purple-500 !text-white font-bold' : ''} 
                         ${isSearched ? '!bg-green-500 ring-2 ring-white' : ''}
                         ${hasHighlight ? 'day-highlight' : ''}`;
 
                     daysHTML += `<div class="${dayClasses}" data-day="${day}" data-month="${month}" data-year="${year}"><span>${day}</span>${dayEvents.length > 0 ? `<span class="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center shadow-md">${dayEvents.length}</span>` : ''}</div>`;
                 }
-                return `<div class="bg-gray-800 bg-opacity-50 backdrop-blur-sm p-4 rounded-lg shadow-2xl"><h2 class="text-xl font-bold text-center mb-4 text-indigo-300">${monthNames[month]} ${year}</h2><div class="grid grid-cols-7 gap-1 text-center">${weekDays.map(d => `<div class="font-semibold text-xs text-gray-400">${d}</div>`).join('')}${daysHTML}</div></div>`;
+                return `<div class="bg-gray-800 bg-opacity-50 backdrop-blur-sm p-4 rounded-lg shadow-2xl"><h2 class="text-xl font-bold text-center mb-4 text-purple-300">${monthNames[month]} ${year}</h2><div class="grid grid-cols-7 gap-1 text-center">${weekDays.map(d => `<div class="font-semibold text-xs text-gray-400">${d}</div>`).join('')}${daysHTML}</div></div>`;
             };
             
             const renderModal = (date, dayEvents) => {
@@ -304,7 +416,7 @@
             };
 
             const renderModalContent = (date, dayEvents) => {
-                domRefs.modalContent.innerHTML = `<div class="flex justify-between items-center mb-4"><h3 class="text-2xl font-bold text-indigo-300">Lançamentos de ${date.getDate()} de ${monthNames[date.getMonth()]}</h3><button id="close-modal-btn" class="text-gray-400 hover:text-white text-2xl">&times;</button></div><div class="space-y-4">${dayEvents.map(event => createEventCardHTML(event)).join('')}</div>`;
+                domRefs.modalContent.innerHTML = `<div class="flex justify-between items-center mb-4"><h3 class="text-2xl font-bold text-purple-300">Lançamentos de ${date.getDate()} de ${monthNames[date.getMonth()]}</h3><button id="close-modal-btn" class="text-gray-400 hover:text-white text-2xl">&times;</button></div><div class="space-y-4">${dayEvents.map(event => createEventCardHTML(event)).join('')}</div>`;
                 
                 document.getElementById('close-modal-btn').onclick = closeModal;
 
@@ -333,7 +445,7 @@
                         <span>${label}: ${text}</span>
                     </div>`;
                 
-                const activeInfo = statusHTML('Ativo no H2Bet', event.activeOnSite.toLowerCase() === 'sim' ? 'Sim' : 'Não', event.activeOnSite.toLowerCase() === 'sim', 'Ativo no site?');
+                const activeInfo = statusHTML('Ativo no SeuBet', event.activeOnSite.toLowerCase() === 'sim' ? 'Sim' : 'Não', event.activeOnSite.toLowerCase() === 'sim', 'Ativo no site?');
                 const certInfo = statusHTML('Certificado', event.certificate.toLowerCase() === 'sim' ? 'Sim' : 'Não', event.certificate.toLowerCase() === 'sim', 'Certificado');
                 const isHighlight = event.destaque && event.destaque.toLowerCase() === 's';
                 const destaqueInfo = statusHTML('Destaque', isHighlight ? 'Sim' : 'Não', isHighlight, 'Destaque', 'S', 'N');
@@ -341,7 +453,7 @@
 
                 const cardClasses = `bg-gray-700 p-4 rounded-lg flex flex-col md:flex-row gap-4 relative group ${isHighlight ? 'card-highlight' : ''}`;
 
-                return `<div class="${cardClasses}"><div class="w-full md:w-48 h-48 flex-shrink-0 flex items-center justify-center"><img src="${event.gameImage}" alt="Imagem do jogo ${event.game}" class="max-w-full max-h-full object-contain rounded-md" onerror="this.onerror=null;this.src='${PLACEHOLDER_IMAGE}';"></div><div class="flex-1 flex flex-col"><div><h4 class="text-xl font-bold text-white">${event.game}</h4><p class="text-sm bg-indigo-500 inline-block px-2 py-0.5 rounded-full my-2">${event.gameType}</p></div><div class="flex-grow grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2"><div class="space-y-2">${activeInfo}${certInfo}${destaqueInfo}</div><div>${volatilityMeter}</div></div><div class="flex items-center gap-2 mt-3 pt-3 border-t border-gray-600"><img src="${event.providerImage}" alt="Logo de ${event.provider}" class="h-10 object-contain bg-gray-800 p-1 rounded" onerror="this.onerror=null;this.src='${PLACEHOLDER_PROVIDER_IMAGE}';"><span class="text-gray-300 font-semibold">${event.provider}</span></div></div><button class="delete-game-btn absolute top-2 right-2 p-2 bg-red-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" data-game-name="${event.game}" title="Remover Jogo"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg></button></div>`;
+                return `<div class="${cardClasses}"><div class="w-full md:w-48 h-48 flex-shrink-0 flex items-center justify-center"><img src="${event.gameImage}" alt="Imagem do jogo ${event.game}" class="max-w-full max-h-full object-contain rounded-md" onerror="this.onerror=null;this.src='${PLACEHOLDER_IMAGE}';"></div><div class="flex-1 flex flex-col"><div><h4 class="text-xl font-bold text-white">${event.game}</h4><p class="text-sm bg-purple-500 inline-block px-2 py-0.5 rounded-full my-2">${event.gameType}</p></div><div class="flex-grow grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2"><div class="space-y-2">${activeInfo}${certInfo}${destaqueInfo}</div><div>${volatilityMeter}</div></div><div class="flex items-center gap-2 mt-3 pt-3 border-t border-gray-600"><img src="${event.providerImage}" alt="Logo de ${event.provider}" class="h-10 object-contain bg-gray-800 p-1 rounded" onerror="this.onerror=null;this.src='${PLACEHOLDER_PROVIDER_IMAGE}';"><span class="text-gray-300 font-semibold">${event.provider}</span></div></div><button class="delete-game-btn absolute top-2 right-2 p-2 bg-red-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" data-game-name="${event.game}" title="Remover Jogo"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg></button></div>`;
             };
 
             const closeModal = () => domRefs.modal.classList.add('hidden');
@@ -357,6 +469,7 @@
                     option.textContent = provider.name;
                     select.appendChild(option);
                 });
+                select.insertAdjacentHTML('beforeend', '<option value="__add_new__" class="text-purple-300 font-bold mt-2 pt-2 border-t border-gray-600">+ Novo Provedor</option>');
             };
             
             const handleProviderSelection = (e) => {
@@ -373,110 +486,110 @@
                  domRefs.addVolatilityMeter.querySelectorAll('[data-level]').forEach(bar => bar.onclick = () => renderAddVolatilityMeter(domRefs.addGameForm.querySelector('[name="volatilidade"]').value === bar.dataset.level ? '' : bar.dataset.level));
             };
             
+            const handleAddProviderSubmit = async (e) => {
+                e.preventDefault();
+                if (!auth.currentUser) return showToast('Você precisa estar logado para adicionar um provedor.', 'error');
+                const providerName = domRefs.addProviderForm['provider-name'].value.trim();
+                const providerLogo = domRefs.addProviderForm['provider-logo'].value.trim();
+                if (!providerName || !providerLogo) return showToast('Nome e URL da logo são obrigatórios.', 'error');
+                showToast('Salvando novo provedor...', 'success');
+                try {
+                    await db.collection('provedores').doc(providerName).set({ nome: providerName, logoUrl: providerLogo });
+                    showToast('Provedor salvo com sucesso!', 'success');
+                    domRefs.addProviderModal.classList.add('hidden');
+                    domRefs.addProviderForm.reset();
+                    await fetchData();
+                    const providerSelect = domRefs.addGameForm.querySelector('[name="provedor"]');
+                    providerSelect.value = providerName;
+                    providerSelect.dispatchEvent(new Event('change'));
+                } catch (error) {
+                    console.error('Erro ao adicionar provedor:', error);
+                    showToast(`Erro: ${error.message}`, 'error');
+                }
+            };
+            
             const promptForVolatilityChange = (gameName, clickedLevel, currentVolatility) => {
                 const newLevel = clickedLevel === (currentVolatility || '').toLowerCase().trim().replace('é', 'e') ? '' : clickedLevel;
                 promptForFieldUpdate(gameName, 'Volatilidade', newLevel);
             };
-            
+
+            const updateSheetField = async (gameName, fieldName, newValue) => { // Removida a senha
+                if (!auth.currentUser) return showToast('Você precisa estar logado para alterar um jogo.', 'error');
+                console.log(`Atualizando '${fieldName}' de '${gameName}' para '${newValue}'`);
+                const keyMap = { 'Destaque': 'Destaque', 'Certificado': 'Certificado', 'Ativo no site?': 'Ativo no site?', 'Volatilidade': 'Volatilidade' };
+                const keyToUpdate = keyMap[fieldName];
+                if (!keyToUpdate) return showToast(`Erro: Campo desconhecido '${fieldName}'.`, 'error');
+                try {
+                    const updateData = {};
+                    updateData[keyToUpdate] = newValue;
+                    const gameRef = db.collection('jogos').doc(gameName);
+                    await gameRef.update(updateData);
+                    showToast(`'${fieldName}' de '${gameName}' atualizado com sucesso!`, 'success');
+                    await fetchData();
+                    const updatedEvent = events.find(e => e.game === gameName);
+                    if(updatedEvent) {
+                        const dayEvents = events.filter(e => e.date.toDateString() === updatedEvent.date.toDateString());
+                        renderModalContent(updatedEvent.date, dayEvents);
+                    }
+                } catch (error) {
+                    console.error("Erro ao atualizar campo:", error);
+                    showToast(`Erro ao atualizar: ${error.message}`, 'error');
+                }
+            };
+
             const promptForFieldUpdate = (gameName, fieldName, newValue) => {
-                const password = prompt(`Para alterar '${fieldName}' de "${gameName}", insira a senha:`);
-                if (password) { 
-                    updateSheetField(gameName, fieldName, newValue, password);
+                updateSheetField(gameName, fieldName, newValue);
+            };
+
+            const deleteGameInSheet = async (gameName) => {
+                if (!auth.currentUser) return showToast('Você precisa estar logado para excluir um jogo.', 'error');
+                try {
+                    await db.collection('jogos').doc(gameName).delete();
+                    showToast(`"${gameName}" foi excluído com sucesso.`, 'success');
+                    closeModal();
+                    fetchData();
+                } catch (error) {
+                    console.error("Erro ao excluir jogo:", error);
+                    showToast(`Erro ao excluir: ${error.message}`, 'error');
                 }
             };
 
             const promptForGameDeletion = (gameName) => {
-                if (!confirm(`Tem certeza que deseja remover "${gameName}"?`)) return;
-                const password = prompt(`Para confirmar a remoção, insira a senha:`);
-                if (password) {
-                    deleteGameInSheet(gameName, password);
+                if (confirm(`Tem certeza que deseja remover "${gameName}"? Esta ação não pode ser desfeita.`)) {
+                    deleteGameInSheet(gameName);
                 }
-            };
-            
-            const sendApiRequest = async (action, data) => {
-                if (action !== 'updateField') {
-                    showToast('Processando...', 'success');
-                }
-                try {
-                    const response = await fetch(APPS_SCRIPT_URL, {
-                        method: 'POST', mode: 'cors', headers: {'Content-Type': 'text/plain;charset=utf-8'},
-                        body: JSON.stringify({ action, ...data })
-                    });
-                    const result = await response.json();
-                    if (result.status === "success") {
-                        showToast(result.message, 'success');
-                        return result;
-                    } else { throw new Error(result.message); }
-                } catch (error) {
-                    showToast(`Erro: ${error.message}`, 'error');
-                    throw error;
-                }
-            };
-            
-            const updateSheetField = async (gameName, fieldName, newValue, password) => {
-                const eventIndex = events.findIndex(e => e.game === gameName);
-                if (eventIndex === -1) return showToast('Erro: Jogo não encontrado localmente.', 'error');
-                
-                const keyMap = { 'Destaque': 'destaque', 'Certificado': 'certificate', 'Ativo no site?': 'activeOnSite', 'Volatilidade': 'volatility' };
-                const keyToUpdate = keyMap[fieldName];
-                if (!keyToUpdate) return showToast(`Erro: Campo desconhecido '${fieldName}'.`, 'error');
-
-                const originalValue = events[eventIndex][keyToUpdate];
-
-                events[eventIndex][keyToUpdate] = newValue;
-
-                renderCalendars();
-                renderCarousel(); 
-                const updatedEvent = events[eventIndex];
-                const dayEvents = events.filter(e => e.date.toDateString() === updatedEvent.date.toDateString());
-                renderModalContent(updatedEvent.date, dayEvents);
-
-                try {
-                    await sendApiRequest('updateField', { gameName, fieldName, newValue, password });
-                } catch (error) {
-                    showToast(`Falha ao salvar: ${error.message}. Revertendo.`, 'error');
-                    events[eventIndex][keyToUpdate] = originalValue; 
-                    renderCalendars();
-                    renderCarousel(); 
-                    renderModalContent(updatedEvent.date, dayEvents);
-                }
-            };
-
-            const deleteGameInSheet = async (gameName, password) => {
-                try {
-                    await sendApiRequest('deleteGame', { gameName, password });
-                    await fetchData(); 
-                    closeModal();
-                } catch (error) {/* Ignora, toast já foi mostrado */}
             };
             
             const handleAddGameSubmit = async (e) => {
                 e.preventDefault();
+                if (!auth.currentUser) return showToast('Você precisa estar logado para adicionar um jogo.', 'error');
                 const formData = new FormData(domRefs.addGameForm);
-                const password = formData.get('password');
-                if (!password) { return showToast('Por favor, insira a senha.', 'error'); }
-                
-                const rawDate = formData.get('data');
-                const [year, month, day] = rawDate.split('-');
-                
+                const jogoNome = formData.get('jogo').trim();
+                if (!jogoNome) return showToast('O nome do jogo não pode estar vazio.', 'error');
+                const dataInput = formData.get('data');
+                const dataCorreta = new Date(dataInput + 'T00:00:00');
                 const gameData = {
-                    data: `${day}/${month}/${year}`,
-                    provedor: formData.get('provedor'),
-                    jogo: formData.get('jogo'),
-                    tipodejogo: formData.get('tipodejogo'),
-                    imagem: formData.get('imagem'),
-                    imagemprovedor: formData.get('imagemprovedor'),
-                    volatilidade: formData.get('volatilidade'),
-                    certificado: formData.get('certificado'),
-                    ativonosite: formData.get('ativonosite'),
-                    destaque: formData.get('destaque')
+                    'Data': dataCorreta,
+                    'Provedor': formData.get('provedor'),
+                    'Jogo': jogoNome,
+                    'Tipo de jogo': formData.get('tipodejogo'),
+                    'Imagem': formData.get('imagem'),
+                    'Imagem provedor': formData.get('imagemprovedor'),
+                    'Volatilidade': formData.get('volatilidade'),
+                    'Certificado': formData.get('certificado'),
+                    'Ativo no site?': formData.get('ativonosite'),
+                    'Destaque': formData.get('destaque')
                 };
-
                 try {
-                    await sendApiRequest('addGame', { password, gameData });
+                    showToast('Salvando novo jogo...', 'success');
+                    await db.collection('jogos').doc(jogoNome).set(gameData);
+                    showToast('Jogo salvo com sucesso!', 'success');
                     closeAddGameModal();
-                    await fetchData(); 
-                } catch (error) {/* Ignora, toast já foi mostrado */}
+                    fetchData();
+                } catch (error) {
+                    console.error("Erro ao salvar o jogo:", error);
+                    showToast(`Erro ao salvar: ${error.message}`, 'error');
+                }
             };
             
             const updateFilterLabel = () => {
@@ -509,7 +622,7 @@
                 searchQuery = e.target.value;
                 const suggestions = getFilteredEvents().slice(0, 5);
                 if (searchQuery && suggestions.length > 0) {
-                    domRefs.autocompleteList.innerHTML = suggestions.map(event => `<div class="p-2 hover:bg-indigo-600 cursor-pointer" data-game="${event.game}">${event.game}</div>`).join('');
+                    domRefs.autocompleteList.innerHTML = suggestions.map(event => `<div class="p-2 hover:bg-purple-600 cursor-pointer" data-game="${event.game}">${event.game}</div>`).join('');
                     domRefs.autocompleteList.classList.remove('hidden');
                 } else {
                     domRefs.autocompleteList.classList.add('hidden');
@@ -529,168 +642,56 @@
                 }
             };
 
-            // --- LÓGICA DO CARROSSEL COM ARRASTE ---
-
             const renderCarousel = () => {
                 if (carouselInterval) clearInterval(carouselInterval);
-                
                 const getUniqueCarouselEvents = () => {
                     const today = new Date();
                     today.setHours(0, 0, 0, 0);
-
                     const twoDaysAgo = new Date(today);
                     twoDaysAgo.setDate(today.getDate() - 2);
-
-                    const highlightEvents = events
-                        .filter(event => 
-                            event.destaque.toLowerCase() === 's' && event.date >= twoDaysAgo
-                        )
-                        .sort((a, b) => a.date - b.date);
-
+                    const highlightEvents = events.filter(event => event.destaque.toLowerCase() === 's' && event.date >= twoDaysAgo).sort((a, b) => a.date - b.date);
                     const uniqueGames = new Map();
-                    for (const event of highlightEvents) {
-                        if (!uniqueGames.has(event.game)) {
-                            uniqueGames.set(event.game, event);
-                        }
-                    }
-                    
+                    for (const event of highlightEvents) { if (!uniqueGames.has(event.game)) { uniqueGames.set(event.game, event); } }
                     return Array.from(uniqueGames.values());
                 };
-                
                 const carouselEvents = getUniqueCarouselEvents();
-
-                if (carouselEvents.length === 0) {
-                    domRefs.carouselWrapper.innerHTML = '<div class="text-center w-full text-gray-400 p-8">Nenhum jogo em destaque.</div>';
-                    return;
-                }
-                
-                const getVisibleSlidesCount = () => {
-                    if (window.innerWidth <= 640) return 1;
-                    if (window.innerWidth <= 1024) return 2;
-                    return 3;
-                }
+                if (carouselEvents.length === 0) { domRefs.carouselWrapper.innerHTML = '<div class="text-center w-full text-gray-400 p-8">Nenhum jogo em destaque.</div>'; return; }
+                const getVisibleSlidesCount = () => { if (window.innerWidth <= 640) return 1; if (window.innerWidth <= 1024) return 2; return 3; }
                 const numVisibleSlides = getVisibleSlidesCount();
                 const enableInfiniteScroll = carouselEvents.length > numVisibleSlides;
-
                 let slides = carouselEvents;
-                if (enableInfiniteScroll) {
-                    slides = [...carouselEvents, ...carouselEvents.slice(0, numVisibleSlides)];
-                }
-                
-                domRefs.carouselWrapper.innerHTML = slides.map(event => `
-                    <div class="carousel-slide" data-gamedate="${event.date.toISOString()}">
-                        <img src="${event.gameImage}" alt="${event.game}" onerror="this.onerror=null;this.src='${PLACEHOLDER_IMAGE}';">
-                        <div class="slide-title">${event.game}</div>
-                    </div>
-                `).join('');
-                
+                if (enableInfiniteScroll) { slides = [...carouselEvents, ...carouselEvents.slice(0, numVisibleSlides)]; }
+                domRefs.carouselWrapper.innerHTML = slides.map(event => `<div class="carousel-slide" data-gamedate="${event.date.toISOString()}"><img src="${event.gameImage}" alt="${event.game}" onerror="this.onerror=null;this.src='${PLACEHOLDER_IMAGE}';"><div class="slide-title">${event.game}</div></div>`).join('');
                 domRefs.carouselWrapper.style.transform = `translateX(0)`;
                 domRefs.carouselWrapper.style.transition = 'none';
-
                 if (enableInfiniteScroll) {
                     let currentIndex = 0;
                     const totalUniqueSlides = carouselEvents.length;
-                    
-                    const startAutoScroll = () => {
-                        if (carouselInterval) clearInterval(carouselInterval);
-                        carouselInterval = setInterval(advanceCarousel, 3000);
-                    };
-
                     const advanceCarousel = () => {
                         if (domRefs.carouselWrapper.children.length === 0) return;
                         const slideWidth = domRefs.carouselWrapper.children[0].getBoundingClientRect().width;
                         if (slideWidth === 0) return;
-
                         currentIndex++;
                         domRefs.carouselWrapper.style.transition = 'transform 0.5s ease-in-out';
                         domRefs.carouselWrapper.style.transform = `translateX(-${currentIndex * slideWidth}px)`;
-
-                        if (currentIndex >= totalUniqueSlides) {
-                            setTimeout(() => {
-                                domRefs.carouselWrapper.style.transition = 'none';
-                                currentIndex = 0;
-                                domRefs.carouselWrapper.style.transform = `translateX(0)`;
-                            }, 500);
-                        }
+                        if (currentIndex >= totalUniqueSlides) { setTimeout(() => { domRefs.carouselWrapper.style.transition = 'none'; currentIndex = 0; domRefs.carouselWrapper.style.transform = `translateX(0)`; }, 500); }
                     };
-                    startAutoScroll();
+                    if (carouselInterval) clearInterval(carouselInterval);
+                    carouselInterval = setInterval(advanceCarousel, 3000);
                 }
             };
 
             const handleCarouselClick = (e) => {
                 const slide = e.target.closest('.carousel-slide');
-                if (!slide || slide.dataset.dragged === 'true') {
-                    if(slide) delete slide.dataset.dragged;
-                    return;
-                };
-
+                if (!slide || slide.dataset.dragged === 'true') { if(slide) delete slide.dataset.dragged; return; };
                 const dateString = slide.dataset.gamedate;
                 const eventDate = new Date(dateString);
-
                 currentDate = new Date(eventDate.getFullYear(), eventDate.getMonth(), 1);
                 renderCalendars();
-
                 const dayEvents = events.filter(ev => ev.date.toDateString() === eventDate.toDateString());
-                if (dayEvents.length > 0) {
-                    renderModal(eventDate, dayEvents);
-                }
+                if (dayEvents.length > 0) { renderModal(eventDate, dayEvents); }
             };
             
-            const fetchData = async () => {
-                try {
-                    const [eventsResponse, providersResponse] = await Promise.all([
-                        fetch(`${CSV_URL}&cache_bust=${new Date().getTime()}`),
-                        fetch(`${PROVIDERS_CSV_URL}&cache_bust=${new Date().getTime()}`)
-                    ]);
-                    
-                    const providersCsvText = await providersResponse.text();
-                    const providerLines = providersCsvText.split('\r\n').slice(1);
-                    providerData = providerLines.map(line => {
-                        const [name, link] = line.split(',').map(c => c.trim().replace(/"/g, ''));
-                        return name && link ? { name, link } : null;
-                    }).filter(Boolean);
-
-                    const csvText = await eventsResponse.text();
-                    const allLines = csvText.split('\r\n');
-                    const header = allLines.shift().split(',').map(h => h.trim().replace(/"/g, ''));
-                    const headerMap = header.reduce((acc, curr, index) => ({...acc, [curr]: index }), {});
-
-                    events = allLines.map(line => {
-                        const columns = line.split(',').map(c => c.trim().replace(/"/g, ''));
-                        if (columns.length < header.length) return null;
-                        
-                        const data = {};
-                        Object.keys(headerMap).forEach(key => data[key] = columns[headerMap[key]]);
-                        
-                        const [day, month, year] = data.Data.split('/');
-                        const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-
-                        if (!data.Data || !data.Provedor || !data.Jogo || isNaN(date.getTime())) return null;
-
-                        return { 
-                            date, 
-                            provider: data.Provedor, 
-                            game: data.Jogo, 
-                            gameType: data['Tipo de jogo'], 
-                            gameImage: (data.Imagem && data.Imagem.startsWith('http')) ? data.Imagem : PLACEHOLDER_IMAGE, 
-                            providerImage: (data['Imagem provedor'] && data['Imagem provedor'].startsWith('http')) ? data['Imagem provedor'] : PLACEHOLDER_PROVIDER_IMAGE, 
-                            certificate: data.Certificado || 'Não', 
-                            activeOnSite: data['Ativo no site?'] || 'Não', 
-                            volatility: data.Volatilidade || 'N/D',
-                            destaque: data.Destaque || 'N'
-                        };
-                    }).filter(Boolean);
-
-                    allProviders = ['All', ...new Set(events.map(e => e.provider).filter(p => p))];
-                    renderFilters();
-                    renderCalendars();
-                    renderCarousel();
-                } catch (error) {
-                    console.error("Erro ao buscar dados:", error);
-                    domRefs.calendarsContainer.innerHTML = `<div class="text-center md:col-span-2 text-red-400">Falha ao carregar dados.</div>`;
-                }
-            };
-
             const renderParticles = () => {
                 for (let i = 0; i < 50; i++) {
                     const particle = document.createElement('div');
@@ -707,67 +708,37 @@
             };
 
             // --- LÓGICA DE ARRASTE DO CARROSSEL ---
-            let isDown = false;
-            let startX;
-            let scrollLeft;
-            let hasDragged = false;
-
-            const startDragging = (e) => {
-                isDown = true;
-                hasDragged = false;
-                domRefs.carouselContainer.classList.add('grabbing');
-                startX = e.pageX || e.touches[0].pageX - domRefs.carouselContainer.offsetLeft;
-                scrollLeft = domRefs.carouselContainer.scrollLeft;
-                if (carouselInterval) clearInterval(carouselInterval);
-            };
-
-            const stopDragging = () => {
-                isDown = false;
-                domRefs.carouselContainer.classList.remove('grabbing');
-                // Reinicia o carrossel automático apenas se houver mais slides do que o visível
-                const carouselEvents = events.filter(event => event.destaque.toLowerCase() === 's');
-                const numVisibleSlides = window.innerWidth <= 640 ? 1 : (window.innerWidth <= 1024 ? 2 : 3);
-                if (carouselEvents.length > numVisibleSlides) {
-                    if (carouselInterval) clearInterval(carouselInterval);
-                    carouselInterval = setInterval(() => {
-                        // Reutiliza a lógica de avançar, mas com scroll
-                        const container = domRefs.carouselContainer;
-                        const slideWidth = container.scrollWidth / domRefs.carouselWrapper.children.length;
-                        let nextScroll = container.scrollLeft + slideWidth;
-                        if (nextScroll >= container.scrollWidth - container.clientWidth) {
-                            nextScroll = 0; // Volta para o início
-                        }
-                        container.scrollTo({ left: nextScroll, behavior: 'smooth' });
-                    }, 3000);
-                }
-            };
-
-            const whileDragging = (e) => {
-                if (!isDown) return;
-                e.preventDefault();
-                hasDragged = true;
-                const x = e.pageX || e.touches[0].pageX - domRefs.carouselContainer.offsetLeft;
-                const walk = (x - startX) * 2; // Multiplicador para acelerar o arraste
-                domRefs.carouselContainer.scrollLeft = scrollLeft - walk;
-            };
+            let isDown = false, startX, scrollLeft, hasDragged = false;
+            const startDragging = (e) => { isDown = true; hasDragged = false; domRefs.carouselContainer.classList.add('grabbing'); startX = e.pageX || e.touches[0].pageX - domRefs.carouselContainer.offsetLeft; scrollLeft = domRefs.carouselContainer.scrollLeft; if (carouselInterval) clearInterval(carouselInterval); };
+            const stopDragging = () => { isDown = false; domRefs.carouselContainer.classList.remove('grabbing'); /* Reinicia o carrossel automático aqui se desejar */ };
+            const whileDragging = (e) => { if (!isDown) return; e.preventDefault(); hasDragged = true; const x = e.pageX || e.touches[0].pageX - domRefs.carouselContainer.offsetLeft; const walk = (x - startX) * 2; domRefs.carouselContainer.scrollLeft = scrollLeft - walk; };
 
             // INICIA APLICAÇÃO E EVENTOS
             domRefs.addGameBtn.onclick = openAddGameModal;
             domRefs.cancelAddGameBtn.onclick = closeAddGameModal;
             domRefs.addGameForm.onsubmit = handleAddGameSubmit;
-            domRefs.addGameForm.querySelector('[name="provedor"]').onchange = handleProviderSelection;
+            const providerSelect = domRefs.addGameForm.querySelector('[name="provedor"]');
+            providerSelect.addEventListener('change', (e) => {
+                if (providerSelect.value === '__add_new__') {
+                    domRefs.addProviderModal.classList.remove('hidden');
+                    providerSelect.value = '';
+                } else {
+                    handleProviderSelection(e);
+                }
+            });
+            domRefs.cancelAddProviderBtn.onclick = () => domRefs.addProviderModal.classList.add('hidden');
+            domRefs.addProviderForm.onsubmit = handleAddProviderSubmit;
             domRefs.prevBtn.onclick = () => { currentDate.setMonth(currentDate.getMonth() - 2); renderCalendars(); };
             domRefs.nextBtn.onclick = () => { currentDate.setMonth(currentDate.getMonth() + 2); renderCalendars(); };
             domRefs.todayBtn.onclick = () => { currentDate = new Date(); renderCalendars(); };
             domRefs.modal.onclick = (e) => { if (e.target === domRefs.modal) closeModal(); };
             domRefs.searchInput.oninput = handleSearchInput;
             domRefs.autocompleteList.onclick = handleSuggestionClick;
-            domRefs.toggleFilterBtn.onclick = () => {
-                domRefs.filterOptions.classList.toggle('hidden');
-                domRefs.filterChevron.classList.toggle('rotate-180');
-            };
-            
-            // MUDANÇA: Substituído evento de clique por eventos de arraste
+            domRefs.toggleFilterBtn.onclick = () => { domRefs.filterOptions.classList.toggle('hidden'); domRefs.filterChevron.classList.toggle('rotate-180'); };
+            domRefs.loginBtn.onclick = () => domRefs.loginModal.classList.remove('hidden');
+            domRefs.cancelLoginBtn.onclick = () => domRefs.loginModal.classList.add('hidden');
+            domRefs.logoutBtn.onclick = () => { auth.signOut(); showToast('Você foi desconectado.', 'success'); };
+            domRefs.loginForm.onsubmit = async (e) => { e.preventDefault(); const email = domRefs.loginForm.email.value; const password = domRefs.loginForm.password.value; try { await auth.signInWithEmailAndPassword(email, password); domRefs.loginModal.classList.add('hidden'); showToast('Login efetuado com sucesso!', 'success'); } catch (error) { console.error("Erro no login:", error); showToast(`Erro: ${error.message}`, 'error'); } };
             domRefs.carouselContainer.addEventListener('mousedown', startDragging);
             domRefs.carouselContainer.addEventListener('mouseleave', stopDragging);
             domRefs.carouselContainer.addEventListener('mouseup', stopDragging);
@@ -775,24 +746,9 @@
             domRefs.carouselContainer.addEventListener('touchstart', startDragging);
             domRefs.carouselContainer.addEventListener('touchend', stopDragging);
             domRefs.carouselContainer.addEventListener('touchmove', whileDragging);
-            domRefs.carouselContainer.addEventListener('click', (e) => {
-                if(hasDragged) {
-                    e.stopPropagation();
-                    e.preventDefault();
-                } else {
-                    handleCarouselClick(e);
-                }
-            }, true);
-            
+            domRefs.carouselContainer.addEventListener('click', (e) => { if(hasDragged) { e.stopPropagation(); e.preventDefault(); } else { handleCarouselClick(e); } }, true);
             window.addEventListener('resize', renderCarousel);
-
-            document.onclick = (e) => { 
-                if (!e.target.closest('.relative')) domRefs.autocompleteList.classList.add('hidden');
-                if (!domRefs.toggleFilterBtn.contains(e.target) && !domRefs.filterOptions.contains(e.target)) {
-                    domRefs.filterOptions.classList.add('hidden');
-                    domRefs.filterChevron.classList.remove('rotate-180');
-                }
-            };
+            document.onclick = (e) => { if (!e.target.closest('.relative')) domRefs.autocompleteList.classList.add('hidden'); if (!domRefs.toggleFilterBtn.contains(e.target) && !domRefs.filterOptions.contains(e.target)) { domRefs.filterOptions.classList.add('hidden'); domRefs.filterChevron.classList.remove('rotate-180'); } };
 
             renderParticles();
             fetchData();
