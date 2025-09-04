@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendário de Lançamentos de Cassino</title>
+    <title>Calendário de Lançamentos - H2Bet & SeuBet</title>
     <script src="https://cdn.tailwindcss.com"></script>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-app-compat.js"></script>
@@ -14,7 +14,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script>
-        // Configuração do Tailwind para usar a fonte Inter
         tailwind.config = {
             theme: {
                 extend: {
@@ -26,143 +25,66 @@
         }
     </script>
     <style>
-        /* Estilos Customizados */
         body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
         @keyframes move { 100% { transform: translate3d(0, 0, 1px) rotate(360deg); } }
-        .particle { position: absolute; border-radius: 50%; background: rgba(192, 132, 252, 0.2); animation: move linear infinite; transform-origin: center center; }
-        
-        /* Animação para o Toast */
+        .particle { position: absolute; border-radius: 50%; background: rgba(129, 140, 248, 0.2); animation: move linear infinite; transform-origin: center center; }
         .toast-enter { transform: translateY(100%); opacity: 0; }
         .toast-enter-active { transform: translateY(0); opacity: 1; transition: all 300ms ease-out; }
         .toast-exit { transform: translateY(0); opacity: 1; }
         .toast-exit-active { transform: translateY(100%); opacity: 0; transition: all 300ms ease-in; }
-
-        /* Animação para o Destaque no Dia */
-        @keyframes flash-red {
-            50% { background-color: #ef4444; } /* Apenas o pico da animação é vermelho */
-        }
-        .day-highlight {
-            animation: flash-red 1.5s infinite ease-in-out;
-        }
-
-        /* Animação para o Destaque no Card do Jogo */
-        @keyframes glow {
-            0%, 100% { box-shadow: 0 0 5px #ef4444; }
-            50% { box-shadow: 0 0 20px #ef4444, 0 0 30px #ef4444; }
-        }
-        .card-highlight {
-            border: 1px solid #ef4444;
-            animation: glow 1.5s infinite ease-in-out;
-        }
-
-        /* --- ESTILOS PARA O CARROSSEL --- */
-        .carousel-container {
-            overflow: hidden;
-            width: 100%;
-            cursor: grab;
-        }
-        .carousel-container.grabbing {
-            cursor: grabbing;
-        }
-        .carousel-wrapper {
-            display: flex;
-            transition: transform 0.5s ease-in-out;
-        }
-        .carousel-slide {
-            flex: 0 0 calc(100% / 3); /* Mostra 3 slides por vez */
-            box-sizing: border-box;
-            padding: 0 8px;
-            position: relative;
-        }
-        .carousel-slide img {
-            width: 100%;
-            height: 120px; 
-            object-fit: cover;
-            border-radius: 0.5rem;
-            border: 2px solid transparent;
-            transition: border-color 0.3s;
-            pointer-events: none; /* Impede eventos de mouse na imagem */
-        }
-        .carousel-slide:hover img {
-            border-color: #c084fc; /* purple-400 */
-        }
-        .carousel-slide .slide-title {
-            position: absolute;
-            bottom: 0;
-            left: 8px;
-            right: 8px;
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 4px 8px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-align: center;
-            border-bottom-left-radius: 0.5rem;
-            border-bottom-right-radius: 0.5rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        @media (max-width: 1024px) {
-            .carousel-slide { flex: 0 0 50%; } /* Mostra 2 slides em telas médias */
-        }
-        @media (max-width: 640px) {
-            .carousel-slide { flex: 0 0 100%; } /* Mostra 1 slide em telas pequenas */
-        }
+        @keyframes flash-red { 50% { background-color: #ef4444; } }
+        .day-highlight { animation: flash-red 1.5s infinite ease-in-out; }
+        @keyframes glow { 0%, 100% { box-shadow: 0 0 5px #ef4444; } 50% { box-shadow: 0 0 20px #ef4444, 0 0 30px #ef4444; } }
+        .card-highlight { border: 1px solid #ef4444; animation: glow 1.5s infinite ease-in-out; }
+        .carousel-container { overflow: hidden; width: 100%; cursor: grab; }
+        .carousel-container.grabbing { cursor: grabbing; }
+        .carousel-wrapper { display: flex; }
+        .carousel-slide { flex: 0 0 calc(100% / 3); box-sizing: border-box; padding: 0 8px; position: relative; }
+        .carousel-slide img { width: 100%; height: 120px; object-fit: cover; border-radius: 0.5rem; border: 2px solid transparent; transition: border-color 0.3s; pointer-events: none; }
+        .carousel-slide:hover img { border-color: #818cf8; }
+        .carousel-slide .slide-title { position: absolute; bottom: 0; left: 8px; right: 8px; background: rgba(0, 0, 0, 0.7); color: white; padding: 4px 8px; font-size: 0.8rem; font-weight: 600; text-align: center; border-bottom-left-radius: 0.5rem; border-bottom-right-radius: 0.5rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        @media (max-width: 1024px) { .carousel-slide { flex: 0 0 50%; } }
+        @media (max-width: 640px) { .carousel-slide { flex: 0 0 100%; } }
     </style>
 </head>
-<body class="bg-slate-900 text-white font-sans overflow-x-hidden">
+<body class="bg-gray-900 text-white font-sans overflow-x-hidden">
 
     <div id="particles-js" class="absolute inset-0 z-0 overflow-hidden"></div>
 
     <main class="relative z-10 max-w-6xl mx-auto p-4 md:p-8">
         <header class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
             <div id="highlight-carousel" class="carousel-container w-full md:w-2/3">
-                <div id="carousel-wrapper" class="carousel-wrapper">
-                    </div>
+                <div id="carousel-wrapper" class="carousel-wrapper"></div>
             </div>
             
             <div class="flex items-center gap-2 flex-shrink-0">
-                <button id="login-btn" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors font-semibold">Login</button>
-                
-                <button id="add-game-btn" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors font-semibold flex items-center gap-2 hidden">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" /></svg>
-                    Adicionar Jogo
+                <button id="login-btn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors font-semibold">Login</button>
+                <button id="add-game-btn" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition-colors font-semibold flex items-center gap-2 hidden"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" /></svg>Adicionar Jogo</button>
+                <button id="show-errors-btn" class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-black rounded-lg transition-colors font-semibold flex items-center gap-2 hidden relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.21 3.03-1.742 3.03H4.42c-1.532 0-2.492-1.696-1.742-3.03l5.58-9.92zM10 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+                    Jogos com Erros
+                    <span id="error-count-badge" class="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
                 </button>
                 <button id="logout-btn" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg transition-colors font-semibold hidden">Logout</button>
-                
-                <button id="prev-btn" class="px-4 py-2 bg-gray-700 hover:bg-purple-500 rounded-lg transition-colors">‹‹</button>
-                <button id="today-btn" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors font-semibold">Hoje</button>
-                <button id="next-btn" class="px-4 py-2 bg-gray-700 hover:bg-purple-500 rounded-lg transition-colors">››</button>
+                <button id="prev-btn" class="px-4 py-2 bg-gray-700 hover:bg-indigo-500 rounded-lg transition-colors">‹‹</button>
+                <button id="today-btn" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors font-semibold">Hoje</button>
+                <button id="next-btn" class="px-4 py-2 bg-gray-700 hover:bg-indigo-500 rounded-lg transition-colors">››</button>
             </div>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-            <div class="relative">
-                <label for="search-input" class="block text-sm font-medium text-gray-300 mb-1">Pesquisar por Jogo:</label>
-                <input type="text" id="search-input" placeholder="Digite o nome do jogo..." class="w-full bg-gray-700 text-white placeholder-gray-400 rounded-lg p-2 border-2 border-transparent focus:border-purple-500 focus:ring-0 transition">
-                <div id="autocomplete-list" class="absolute z-20 w-full bg-gray-700 rounded-b-lg mt-1 max-h-60 overflow-y-auto hidden"></div>
-            </div>
-            <div class="relative">
-                 <label for="toggle-filter-btn" class="block text-sm font-medium text-gray-300 mb-1">Filtrar por Provedor:</label>
-                <button id="toggle-filter-btn" class="w-full flex justify-between items-center bg-gray-700 rounded-lg p-2">
-                    <span id="filter-label">Todos os Provedores</span>
-                    <svg id="filter-chevron" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
-                </button>
-                <div id="filter-options" class="absolute hidden z-20 w-full mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-4 max-h-60 overflow-y-auto">
-                    <div id="filters-container" class="flex flex-wrap gap-2"><div class="text-gray-400">Carregando filtros...</div></div>
-                </div>
-            </div>
+            <div class="relative"><label for="search-input" class="block text-sm font-medium text-gray-300 mb-1">Pesquisar por Jogo:</label><input type="text" id="search-input" placeholder="Digite o nome do jogo..." class="w-full bg-gray-700 text-white placeholder-gray-400 rounded-lg p-2 border-2 border-transparent focus:border-indigo-500 focus:ring-0 transition"><div id="autocomplete-list" class="absolute z-20 w-full bg-gray-700 rounded-b-lg mt-1 max-h-60 overflow-y-auto hidden"></div></div>
+            <div class="relative"><label for="toggle-filter-btn" class="block text-sm font-medium text-gray-300 mb-1">Filtrar por Provedor:</label><button id="toggle-filter-btn" class="w-full flex justify-between items-center bg-gray-700 rounded-lg p-2"><span id="filter-label">Todos os Provedores</span><svg id="filter-chevron" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg></button><div id="filter-options" class="absolute hidden z-20 w-full mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-4 max-h-60 overflow-y-auto"><div id="filters-container" class="flex flex-wrap gap-2"><div class="text-gray-400">Carregando filtros...</div></div></div></div>
         </div>
 
         <div id="calendars-container" class="grid grid-cols-1 md:grid-cols-2 gap-6"><div class="text-center md:col-span-2 text-gray-400">Carregando calendários...</div></div>
     </main>
 
-    <div id="modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4 hidden"><div id="modal-content" class="bg-gray-800 rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto p-6"></div></div>
+    <div id="modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4 hidden"><div id="modal-content" class="bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6"></div></div>
     
     <div id="add-game-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4 hidden">
-        <form id="add-game-form" class="bg-gray-800 rounded-lg shadow-xl w-full max-w-xl max-h-[90vh] overflow-y-auto p-6 space-y-4">
-            <h3 class="text-2xl font-bold text-purple-300 mb-4">Adicionar Novo Lançamento</h3>
+        <form id="add-game-form" class="bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 space-y-4">
+            <h3 class="text-2xl font-bold text-indigo-300 mb-4">Adicionar Novo Lançamento</h3>
             
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div><label class="block text-sm font-medium text-gray-300">Data</label><input type="date" name="data" required class="w-full bg-gray-700 rounded-lg p-2 mt-1 text-white" style="color-scheme: dark;"></div>
@@ -172,13 +94,23 @@
             <div><label class="block text-sm font-medium text-gray-300">Tipo de jogo</label><input type="text" name="tipodejogo" class="w-full bg-gray-700 rounded-lg p-2 mt-1"></div>
             <div><label class="block text-sm font-medium text-gray-300">Imagem (URL)</label><input type="url" name="imagem" placeholder="https://..." class="w-full bg-gray-700 rounded-lg p-2 mt-1"></div>
             <div><label class="block text-sm font-medium text-gray-300">Imagem do Provedor (URL)</label><input type="url" name="imagemprovedor" placeholder="Selecione um provedor para preencher" readonly class="w-full bg-gray-600 rounded-lg p-2 mt-1"></div>
+            <div><label class="block text-sm font-medium text-gray-300">Volatilidade</label><div id="add-volatility-meter" class="w-full h-8 grid grid-cols-4 gap-1 mt-1"></div><input type="hidden" name="volatilidade"></div>
             
+            <hr class="border-gray-600 my-4">
+            <h4 class="text-lg font-semibold text-gray-200">Status por Plataforma</h4>
+
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div><label class="block text-sm font-medium text-gray-300">Volatilidade</label><div id="add-volatility-meter" class="w-full h-8 grid grid-cols-4 gap-1 mt-1"></div><input type="hidden" name="volatilidade"></div>
-                <div class="space-y-2">
-                    <div><label class="block text-sm font-medium text-gray-300">Certificado</label><div class="flex gap-4 mt-2"><label class="flex items-center"><input type="radio" name="certificado" value="Sim" class="mr-2">Sim</label><label class="flex items-center"><input type="radio" name="certificado" value="Não" class="mr-2" checked>Não</label></div></div>
-                    <div><label class="block text-sm font-medium text-gray-300">Ativo no site?</label><div class="flex gap-4 mt-2"><label class="flex items-center"><input type="radio" name="ativonosite" value="Sim" class="mr-2">Sim</label><label class="flex items-center"><input type="radio" name="ativonosite" value="Não" class="mr-2" checked>Não</label></div></div>
-                    <div><label class="block text-sm font-medium text-gray-300">Destaque?</label><div class="flex gap-4 mt-2"><label class="flex items-center"><input type="radio" name="destaque" value="S" class="mr-2">Sim</label><label class="flex items-center"><input type="radio" name="destaque" value="N" class="mr-2" checked>Não</label></div></div>
+                <div class="bg-gray-700 p-4 rounded-lg space-y-3">
+                    <h5 class="font-bold text-indigo-300">H2Bet</h5>
+                    <div><label class="block text-sm font-medium text-gray-300">Certificado</label><div class="flex gap-4 mt-1"><label class="flex items-center"><input type="radio" name="h2bet_certificado" value="Sim" class="mr-2">Sim</label><label class="flex items-center"><input type="radio" name="h2bet_certificado" value="Não" class="mr-2" checked>Não</label></div></div>
+                    <div><label class="block text-sm font-medium text-gray-300">Ativo no site?</label><div class="flex gap-4 mt-1"><label class="flex items-center"><input type="radio" name="h2bet_ativo" value="Sim" class="mr-2">Sim</label><label class="flex items-center"><input type="radio" name="h2bet_ativo" value="Não" class="mr-2" checked>Não</label></div></div>
+                    <div><label class="block text-sm font-medium text-gray-300">Destaque?</label><div class="flex gap-4 mt-1"><label class="flex items-center"><input type="radio" name="h2bet_destaque" value="S" class="mr-2">Sim</label><label class="flex items-center"><input type="radio" name="h2bet_destaque" value="N" class="mr-2" checked>Não</label></div></div>
+                </div>
+                 <div class="bg-gray-700 p-4 rounded-lg space-y-3">
+                    <h5 class="font-bold text-green-300">SeuBet</h5>
+                    <div><label class="block text-sm font-medium text-gray-300">Certificado</label><div class="flex gap-4 mt-1"><label class="flex items-center"><input type="radio" name="seubet_certificado" value="Sim" class="mr-2">Sim</label><label class="flex items-center"><input type="radio" name="seubet_certificado" value="Não" class="mr-2" checked>Não</label></div></div>
+                    <div><label class="block text-sm font-medium text-gray-300">Ativo no site?</label><div class="flex gap-4 mt-1"><label class="flex items-center"><input type="radio" name="seubet_ativo" value="Sim" class="mr-2">Sim</label><label class="flex items-center"><input type="radio" name="seubet_ativo" value="Não" class="mr-2" checked>Não</label></div></div>
+                    <div><label class="block text-sm font-medium text-gray-300">Destaque?</label><div class="flex gap-4 mt-1"><label class="flex items-center"><input type="radio" name="seubet_destaque" value="S" class="mr-2">Sim</label><label class="flex items-center"><input type="radio" name="seubet_destaque" value="N" class="mr-2" checked>Não</label></div></div>
                 </div>
             </div>
 
@@ -188,43 +120,10 @@
             </div>
         </form>
     </div>
-
-    <div id="login-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4 hidden">
-        <form id="login-form" class="bg-gray-800 rounded-lg shadow-xl w-full max-w-sm p-6 space-y-4">
-            <h3 class="text-2xl font-bold text-purple-300 mb-4">Login de Administrador</h3>
-            <div>
-                <label class="block text-sm font-medium text-gray-300">E-mail</label>
-                <input type="email" name="email" required class="w-full bg-gray-700 rounded-lg p-2 mt-1">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-300">Senha</label>
-                <input type="password" name="password" required class="w-full bg-gray-700 rounded-lg p-2 mt-1">
-            </div>
-            <div class="flex justify-end gap-4 pt-4">
-                <button type="button" id="cancel-login-btn" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg">Cancelar</button>
-                <button type="submit" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg font-semibold">Entrar</button>
-            </div>
-        </form>
-    </div>
-
-    <div id="add-provider-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4 hidden">
-        <form id="add-provider-form" class="bg-gray-900 rounded-lg shadow-xl w-full max-w-sm p-6 space-y-4">
-            <h3 class="text-2xl font-bold text-purple-300 mb-4">Adicionar Novo Provedor</h3>
-            <div>
-                <label class="block text-sm font-medium text-gray-300">Nome do Provedor</label>
-                <input type="text" name="provider-name" required class="w-full bg-gray-700 rounded-lg p-2 mt-1">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-300">URL da Imagem (Logo)</label>
-                <input type="url" name="provider-logo" required placeholder="https://..." class="w-full bg-gray-700 rounded-lg p-2 mt-1">
-            </div>
-            <div class="flex justify-end gap-4 pt-4">
-                <button type="button" id="cancel-add-provider-btn" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg">Cancelar</button>
-                <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg font-semibold">Salvar Provedor</button>
-            </div>
-        </form>
-    </div>
-
+    
+    <div id="login-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4 hidden"><form id="login-form" class="bg-gray-800 rounded-lg shadow-xl w-full max-w-sm p-6 space-y-4"><h3 class="text-2xl font-bold text-indigo-300 mb-4">Login de Administrador</h3><div><label class="block text-sm font-medium text-gray-300">E-mail</label><input type="email" name="email" required class="w-full bg-gray-700 rounded-lg p-2 mt-1"></div><div><label class="block text-sm font-medium text-gray-300">Senha</label><input type="password" name="password" required class="w-full bg-gray-700 rounded-lg p-2 mt-1"></div><div class="flex justify-end gap-4 pt-4"><button type="button" id="cancel-login-btn" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg">Cancelar</button><button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold">Entrar</button></div></form></div>
+    <div id="add-provider-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4 hidden"><form id="add-provider-form" class="bg-gray-900 rounded-lg shadow-xl w-full max-w-sm p-6 space-y-4"><h3 class="text-2xl font-bold text-indigo-300 mb-4">Adicionar Novo Provedor</h3><div><label class="block text-sm font-medium text-gray-300">Nome do Provedor</label><input type="text" name="provider-name" required class="w-full bg-gray-700 rounded-lg p-2 mt-1"></div><div><label class="block text-sm font-medium text-gray-300">URL da Imagem (Logo)</label><input type="url" name="provider-logo" required placeholder="https://..." class="w-full bg-gray-700 rounded-lg p-2 mt-1"></div><div class="flex justify-end gap-4 pt-4"><button type="button" id="cancel-add-provider-btn" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg">Cancelar</button><button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg font-semibold">Salvar Provedor</button></div></form></div>
+    <div id="error-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4 hidden"><div id="error-modal-content" class="bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6"></div></div>
     <div id="toast-container" class="fixed bottom-5 right-5 z-50"></div>
 
     <script>
@@ -245,116 +144,116 @@
         document.addEventListener('DOMContentLoaded', () => {
             const PLACEHOLDER_IMAGE = 'https://placehold.co/400x300/2A2E3B/FFFFFF?text=Sem+Imagem';
             const PLACEHOLDER_PROVIDER_IMAGE = 'https://placehold.co/100x40/374151/FFFFFF?text=Provedor';
-            let events = [], allProviders = [], providerData = [], selectedProviders = ['All'], searchQuery = '', currentDate = new Date(2025, 0, 1);
+            let events = [], erroredEvents = [], allProviders = [], providerData = [], selectedProviders = ['All'], searchQuery = '', currentDate = new Date();
             let carouselInterval = null;
+            let editMode = { active: false, originalId: null };
+            let isDown = false, startX, scrollLeft, hasDragged = false;
             const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"], weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
             
-            const domRefs = {
-                calendarsContainer: document.getElementById('calendars-container'), filtersContainer: document.getElementById('filters-container'), searchInput: document.getElementById('search-input'), autocompleteList: document.getElementById('autocomplete-list'), prevBtn: document.getElementById('prev-btn'), nextBtn: document.getElementById('next-btn'), todayBtn: document.getElementById('today-btn'), modal: document.getElementById('modal'), modalContent: document.getElementById('modal-content'), particlesContainer: document.getElementById('particles-js'), toastContainer: document.getElementById('toast-container'), addGameModal: document.getElementById('add-game-modal'), addGameBtn: document.getElementById('add-game-btn'), cancelAddGameBtn: document.getElementById('cancel-add-game-btn'), addGameForm: document.getElementById('add-game-form'), addVolatilityMeter: document.getElementById('add-volatility-meter'), toggleFilterBtn: document.getElementById('toggle-filter-btn'), filterOptions: document.getElementById('filter-options'), filterLabel: document.getElementById('filter-label'), filterChevron: document.getElementById('filter-chevron'),
-                carouselContainer: document.getElementById('highlight-carousel'),
-                carouselWrapper: document.getElementById('carousel-wrapper'),
-                loginBtn: document.getElementById('login-btn'),
-                logoutBtn: document.getElementById('logout-btn'),
-                loginModal: document.getElementById('login-modal'),
-                loginForm: document.getElementById('login-form'),
-                cancelLoginBtn: document.getElementById('cancel-login-btn'),
-                addProviderModal: document.getElementById('add-provider-modal'),
-                addProviderForm: document.getElementById('add-provider-form'),
-                cancelAddProviderBtn: document.getElementById('cancel-add-provider-btn'),
-            };
+            const domRefs = { calendarsContainer: document.getElementById('calendars-container'), filtersContainer: document.getElementById('filters-container'), searchInput: document.getElementById('search-input'), autocompleteList: document.getElementById('autocomplete-list'), prevBtn: document.getElementById('prev-btn'), nextBtn: document.getElementById('next-btn'), todayBtn: document.getElementById('today-btn'), modal: document.getElementById('modal'), modalContent: document.getElementById('modal-content'), particlesContainer: document.getElementById('particles-js'), toastContainer: document.getElementById('toast-container'), addGameModal: document.getElementById('add-game-modal'), addGameBtn: document.getElementById('add-game-btn'), cancelAddGameBtn: document.getElementById('cancel-add-game-btn'), addGameForm: document.getElementById('add-game-form'), addVolatilityMeter: document.getElementById('add-volatility-meter'), toggleFilterBtn: document.getElementById('toggle-filter-btn'), filterOptions: document.getElementById('filter-options'), filterLabel: document.getElementById('filter-label'), filterChevron: document.getElementById('filter-chevron'), carouselContainer: document.getElementById('highlight-carousel'), carouselWrapper: document.getElementById('carousel-wrapper'), loginBtn: document.getElementById('login-btn'), logoutBtn: document.getElementById('logout-btn'), loginModal: document.getElementById('login-modal'), loginForm: document.getElementById('login-form'), cancelLoginBtn: document.getElementById('cancel-login-btn'), addProviderModal: document.getElementById('add-provider-modal'), addProviderForm: document.getElementById('add-provider-form'), cancelAddProviderBtn: document.getElementById('cancel-add-provider-btn'), showErrorsBtn: document.getElementById('show-errors-btn'), errorModal: document.getElementById('error-modal'), errorModalContent: document.getElementById('error-modal-content') };
 
-            // "Cérebro" da Autenticação: Fica ouvindo mudanças no estado de login
             auth.onAuthStateChanged(user => {
                 if (user) {
-                    console.log("Usuário está logado:", user.email);
                     domRefs.loginBtn.classList.add('hidden');
                     domRefs.addGameBtn.classList.remove('hidden');
                     domRefs.logoutBtn.classList.remove('hidden');
+                    if (erroredEvents.length > 0) {
+                        domRefs.showErrorsBtn.classList.remove('hidden');
+                    }
                 } else {
-                    console.log("Nenhum usuário logado.");
                     domRefs.loginBtn.classList.remove('hidden');
                     domRefs.addGameBtn.classList.add('hidden');
                     domRefs.logoutBtn.classList.add('hidden');
+                    domRefs.showErrorsBtn.classList.add('hidden');
                 }
             });
             
             const fetchData = async () => {
                 try {
-                    console.log("Buscando dados do Firebase...");
-                    const [jogosSnapshot, provedoresSnapshot] = await Promise.all([
+                    console.log("Buscando dados...");
+                    const [h2betSnapshot, seubetSnapshot, provedoresSnapshot] = await Promise.all([
                         db.collection('jogos').get(),
+                        db.collection('jogosseubet').get(),
                         db.collection('provedores').orderBy('nome').get()
                     ]);
-                    console.log(`Encontrados ${jogosSnapshot.size} jogos e ${provedoresSnapshot.size} provedores.`);
+                    console.log(`Encontrados ${h2betSnapshot.size} jogos H2Bet e ${seubetSnapshot.size} jogos SeuBet.`);
 
                     providerData = [];
-                    provedoresSnapshot.forEach(doc => {
-                        const data = doc.data();
-                        providerData.push({ name: data.nome, link: data.logoUrl });
-                    });
+                    provedoresSnapshot.forEach(doc => { providerData.push({ name: doc.data().nome, link: doc.data().logoUrl }); });
                     allProviders = ['All', ...providerData.map(p => p.name)];
 
-                    events = [];
-                    jogosSnapshot.forEach(doc => {
-                        const data = doc.data();
-                        if (!data.Data || !data.Jogo) {
-                            console.warn("Jogo pulado por falta de dados (campo 'Data' ou 'Jogo' ausente):", doc.id);
-                            return;
+                    const seubetStatusMap = new Map();
+                    seubetSnapshot.forEach(doc => {
+                        const data = doc.data(); const gameName = data.Jogo?.trim();
+                        if (gameName) {
+                            seubetStatusMap.set(gameName, { ativo: data['Ativo no site?'] || 'Não', certificado: data.Certificado || 'Não', destaque: data.Destaque || 'N' });
                         }
-                        const date = data.Data.toDate();
-                        events.push({
-                            date,
-                            provider: data.Provedor,
-                            game: data.Jogo.trim(),
-                            gameType: data['Tipo de jogo'] || '',
-                            gameImage: (data.Imagem && data.Imagem.startsWith('http')) ? data.Imagem : PLACEHOLDER_IMAGE,
-                            providerImage: (data['Imagem provedor'] && data['Imagem provedor'].startsWith('http')) ? data['Imagem provedor'] : PLACEHOLDER_PROVIDER_IMAGE,
-                            certificate: data.Certificado || 'Não',
-                            activeOnSite: data['Ativo no site?'] || 'Não',
-                            volatility: data.Volatilidade || 'N/D',
-                            destaque: data.Destaque || 'N'
-                        });
                     });
-                    console.log(`Carregados ${events.length} jogos válidos para o calendário.`);
 
-                    renderFilters();
-                    renderCalendars();
-                    renderCarousel();
+                    events = [];
+                    erroredEvents = [];
+                    h2betSnapshot.forEach(doc => {
+                        const data = doc.data();
+                        const hasError = !data.Jogo || typeof data.Jogo !== 'string' || !data.Data;
+                        const gameName = data.Jogo?.trim() || doc.id;
+                        const gameDate = data.Data ? data.Data.toDate() : null;
+
+                        const eventData = {
+                            game: gameName, date: gameDate, provider: data.Provedor || '[N/A]', gameType: data['Tipo de jogo'] || '[N/A]', gameImage: (data.Imagem && data.Imagem.startsWith('http')) ? data.Imagem : PLACEHOLDER_IMAGE, providerImage: (data['Imagem provedor'] && data['Imagem provedor'].startsWith('http')) ? data['Imagem provedor'] : PLACEHOLDER_PROVIDER_IMAGE, volatility: data.Volatilidade || 'N/D',
+                            h2bet_ativo: data['Ativo no site?'] || 'N/A', h2bet_certificado: data.Certificado || 'N/A', h2bet_destaque: data.Destaque || 'N/A',
+                            seubet_ativo: seubetStatusMap.get(gameName)?.ativo || 'Não', seubet_certificado: seubetStatusMap.get(gameName)?.certificado || 'Não', seubet_destaque: seubetStatusMap.get(gameName)?.destaque || 'Não',
+                            hasError: hasError
+                        };
+
+                        if (hasError) {
+                            erroredEvents.push(eventData);
+                        } else {
+                            events.push(eventData);
+                        }
+                    });
+                    
+                    if (erroredEvents.length > 0 && auth.currentUser) {
+                        domRefs.showErrorsBtn.classList.remove('hidden');
+                        domRefs.showErrorsBtn.querySelector('#error-count-badge').textContent = erroredEvents.length;
+                    } else {
+                        domRefs.showErrorsBtn.classList.add('hidden');
+                    }
+
+                    console.log(`Calendário construído com ${events.length} jogos válidos. Encontrados ${erroredEvents.length} jogos com erros.`);
+                    renderFilters(); renderCalendars(); renderCarousel();
+
                 } catch (error) {
-                    console.error("Erro ao buscar dados:", error);
+                    console.error("Erro ao buscar e processar dados:", error);
                     domRefs.calendarsContainer.innerHTML = `<div class="text-center md-col-span-2 text-red-400">Falha ao carregar dados.</div>`;
                 }
             };
 
+            const openErrorModal = () => {
+                domRefs.errorModalContent.innerHTML = `<div class="flex justify-between items-center mb-4"><h3 class="text-2xl font-bold text-yellow-300">Jogos com Dados Faltando (${erroredEvents.length})</h3><button id="close-error-modal-btn" class="text-gray-400 hover:text-white text-2xl">&times;</button></div><p class="text-gray-400 mb-4">Estes jogos não aparecerão no calendário pois falta o campo "Jogo" ou "Data". Corrija-os no Firebase ou clique em "Ajustar".</p><div class="space-y-4">${erroredEvents.map(event => createEventCardHTML(event)).join('')}</div>`;
+                domRefs.errorModal.classList.remove('hidden');
+                domRefs.errorModalContent.querySelector('#close-error-modal-btn').onclick = closeErrorModal;
+                
+                domRefs.errorModalContent.querySelectorAll('.adjust-game-btn').forEach(btn => { btn.onclick = () => openEditModal(btn.dataset.gameName); });
+                domRefs.errorModalContent.querySelectorAll('[data-action="updateField"]').forEach(element => { const { gameName, fieldName, newValue } = element.dataset; element.onclick = () => updateSheetField(gameName, fieldName, newValue); });
+                domRefs.errorModalContent.querySelectorAll('[data-action="updateVolatility"]').forEach(element => { const { gameName, level } = element.dataset; element.onclick = () => updateVolatility(gameName, level); });
+                domRefs.errorModalContent.querySelectorAll('.delete-game-btn').forEach(btn => { btn.onclick = () => promptForGameDeletion(btn.dataset.gameName); });
+            };
+            const closeErrorModal = () => domRefs.errorModal.classList.add('hidden');
+
             const showToast = (message, type = 'success') => {
                 const toast = document.createElement('div');
-                const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
-                toast.className = `${bgColor} text-white py-2 px-4 rounded-lg shadow-lg toast-enter`;
+                toast.className = `${type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white py-2 px-4 rounded-lg shadow-lg toast-enter`;
                 toast.textContent = message;
                 domRefs.toastContainer.appendChild(toast);
                 requestAnimationFrame(() => toast.classList.add('toast-enter-active'));
-                setTimeout(() => {
-                    toast.classList.remove('toast-enter-active');
-                    toast.classList.add('toast-exit-active');
-                    toast.addEventListener('transitionend', () => toast.remove());
-                }, 3000);
+                setTimeout(() => { toast.classList.remove('toast-enter-active'); toast.classList.add('toast-exit-active'); toast.addEventListener('transitionend', () => toast.remove()); }, 3000);
             };
             
-            const preloadImages = (eventsToLoad) => {
-                eventsToLoad.forEach(event => {
-                    if (event.gameImage && event.gameImage !== PLACEHOLDER_IMAGE) (new Image()).src = event.gameImage;
-                    if (event.providerImage && event.providerImage !== PLACEHOLDER_PROVIDER_IMAGE) (new Image()).src = event.providerImage;
-                });
-            };
-
             const createVolatilityMeterHTML = (level, gameName) => {
                 const levels = { baixo: 'Baixa', medio: 'Média', alto: 'Alta', 'muito alto': 'Muito Alta' };
                 const colors = { baixo: 'bg-green-500', medio: 'bg-yellow-500', alto: 'bg-orange-500', 'muito alto': 'bg-red-500'};
                 const normalizedLevel = (level || '').toLowerCase().trim().replace('é', 'e');
-                let barsHTML = Object.keys(levels).map((key) => {
-                    const isActive = Object.keys(levels).indexOf(normalizedLevel) >= Object.keys(levels).indexOf(key);
-                    return `<div class="h-full rounded cursor-pointer ${isActive ? colors[key] : 'bg-gray-600 hover:bg-gray-500'}" data-action="updateField" data-field-type="volatility" data-level="${key}" data-game-name="${gameName}" title="Definir volatilidade como ${levels[key]}"></div>`;
-                }).join('');
+                let barsHTML = Object.keys(levels).map(key => `<div class="h-full rounded cursor-pointer ${Object.keys(levels).indexOf(normalizedLevel) >= Object.keys(levels).indexOf(key) ? colors[key] : 'bg-gray-600 hover:bg-gray-500'}" data-action="updateVolatility" data-level="${key}" data-game-name="${gameName}" title="Definir volatilidade como ${levels[key]}"></div>`).join('');
                 return `<div><span class="text-sm font-semibold text-gray-300">Volatilidade: ${levels[normalizedLevel] || 'N/D'}</span><div class="w-full h-4 grid grid-cols-4 gap-1 mt-1">${barsHTML}</div></div>`;
             };
             
@@ -362,123 +261,121 @@
             
             const renderFilters = () => {
                 domRefs.filtersContainer.innerHTML = '';
-                allProviders.forEach(provider => {
-                    const button = document.createElement('button');
-                    button.textContent = provider;
-                    button.className = `px-3 py-1 text-sm rounded-full transition-all duration-200 ${selectedProviders.includes(provider) ? 'bg-purple-500 text-white shadow-lg' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`;
-                    button.onclick = () => handleProviderToggle(provider);
-                    domRefs.filtersContainer.appendChild(button);
-                });
+                allProviders.forEach(provider => { const button = document.createElement('button'); button.textContent = provider; button.className = `px-3 py-1 text-sm rounded-full transition-all duration-200 ${selectedProviders.includes(provider) ? 'bg-indigo-500 text-white shadow-lg' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`; button.onclick = () => handleProviderToggle(provider); domRefs.filtersContainer.appendChild(button); });
                 updateFilterLabel();
             };
 
             const renderCalendars = () => {
                 domRefs.calendarsContainer.innerHTML = '';
                 const calendarData = [{ year: currentDate.getFullYear(), month: currentDate.getMonth() }];
-                const nextMonthDate = new Date(currentDate);
-                nextMonthDate.setMonth(nextMonthDate.getMonth() + 1);
+                const nextMonthDate = new Date(currentDate); nextMonthDate.setMonth(nextMonthDate.getMonth() + 1);
                 calendarData.push({ year: nextMonthDate.getFullYear(), month: nextMonthDate.getMonth() });
                 const filteredEvents = getFilteredEvents();
-                const visibleEvents = filteredEvents.filter(event => calendarData.some(cal => cal.year === event.date.getFullYear() && cal.month === event.date.getMonth()));
-                preloadImages(visibleEvents);
                 calendarData.forEach(({ year, month }) => domRefs.calendarsContainer.insertAdjacentHTML('beforeend', createCalendarHTML(year, month, filteredEvents)));
-                domRefs.calendarsContainer.querySelectorAll('.calendar-day').forEach(dayCell => {
-                    const day = parseInt(dayCell.dataset.day);
-                    const dayEvents = getFilteredEvents().filter(e => e.date.getFullYear() === parseInt(dayCell.dataset.year) && e.date.getMonth() === parseInt(dayCell.dataset.month) && e.date.getDate() === day);
-                    if (dayEvents.length > 0) dayCell.onclick = () => renderModal(new Date(dayCell.dataset.year, dayCell.dataset.month, day), dayEvents);
-                });
+                domRefs.calendarsContainer.querySelectorAll('.calendar-day').forEach(dayCell => { const day = parseInt(dayCell.dataset.day); const dayEvents = getFilteredEvents().filter(e => e.date && e.date.getFullYear() === parseInt(dayCell.dataset.year) && e.date.getMonth() === parseInt(dayCell.dataset.month) && e.date.getDate() === day); if (dayEvents.length > 0) dayCell.onclick = () => renderModal(new Date(dayCell.dataset.year, dayCell.dataset.month, day), dayEvents); });
             };
 
             const createCalendarHTML = (year, month, filteredEvents) => {
                 let daysHTML = '';
                 const firstDayOfMonth = new Date(year, month, 1).getDay();
-                for (let i = 0; i < firstDayOfMonth; i++) daysHTML += `<div class="p-2"></div>`;
+                for (let i = 0; i < firstDayOfMonth; i++) daysHTML += `<div></div>`;
                 for (let day = 1; day <= new Date(year, month + 1, 0).getDate(); day++) {
-                    const dayEvents = filteredEvents.filter(e => e.date.getFullYear() === year && e.date.getMonth() === month && e.date.getDate() === day);
+                    const dayEvents = filteredEvents.filter(e => e.date && e.date.getFullYear() === year && e.date.getMonth() === month && e.date.getDate() === day);
                     const isToday = new Date().toDateString() === new Date(year, month, day).toDateString();
                     const isSearched = searchQuery && dayEvents.length > 0;
-                    const hasHighlight = dayEvents.some(e => e.destaque && e.destaque.toLowerCase() === 's');
-                    
-                    const dayClasses = `calendar-day relative p-2 rounded-lg transition-colors duration-200 aspect-square flex items-center justify-center 
-                        ${dayEvents.length > 0 ? 'cursor-pointer hover:bg-purple-700 bg-gray-700' : 'text-gray-500'} 
-                        ${isToday ? 'bg-purple-500 !text-white font-bold' : ''} 
-                        ${isSearched ? '!bg-green-500 ring-2 ring-white' : ''}
-                        ${hasHighlight ? 'day-highlight' : ''}`;
-
+                    const hasHighlight = dayEvents.some(e => (e.h2bet_destaque && e.h2bet_destaque.toLowerCase() === 's') || (e.seubet_destaque && e.seubet_destaque.toLowerCase() === 's'));
+                    let dayClasses = `calendar-day relative p-2 rounded-lg transition-colors duration-200 aspect-square flex items-center justify-center ${dayEvents.length > 0 ? 'cursor-pointer hover:bg-indigo-700 bg-gray-700' : 'text-gray-500'} ${isToday ? 'bg-indigo-500 !text-white font-bold' : ''} ${isSearched ? '!bg-green-500 ring-2 ring-white' : ''} ${hasHighlight ? 'day-highlight' : ''}`;
                     daysHTML += `<div class="${dayClasses}" data-day="${day}" data-month="${month}" data-year="${year}"><span>${day}</span>${dayEvents.length > 0 ? `<span class="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center shadow-md">${dayEvents.length}</span>` : ''}</div>`;
                 }
-                return `<div class="bg-gray-800 bg-opacity-50 backdrop-blur-sm p-4 rounded-lg shadow-2xl"><h2 class="text-xl font-bold text-center mb-4 text-purple-300">${monthNames[month]} ${year}</h2><div class="grid grid-cols-7 gap-1 text-center">${weekDays.map(d => `<div class="font-semibold text-xs text-gray-400">${d}</div>`).join('')}${daysHTML}</div></div>`;
+                return `<div class="bg-gray-800 bg-opacity-50 backdrop-blur-sm p-4 rounded-lg shadow-2xl"><h2 class="text-xl font-bold text-center mb-4 text-indigo-300">${monthNames[month]} ${year}</h2><div class="grid grid-cols-7 gap-1 text-center">${weekDays.map(d => `<div class="font-semibold text-xs text-gray-400">${d}</div>`).join('')}${daysHTML}</div></div>`;
             };
             
-            const renderModal = (date, dayEvents) => {
-                renderModalContent(date, dayEvents);
-                domRefs.modal.classList.remove('hidden');
-            };
+            const closeModal = () => domRefs.modal.classList.add('hidden');
+            const renderModal = (date, dayEvents) => { renderModalContent(date, dayEvents); domRefs.modal.classList.remove('hidden'); };
 
             const renderModalContent = (date, dayEvents) => {
-                domRefs.modalContent.innerHTML = `<div class="flex justify-between items-center mb-4"><h3 class="text-2xl font-bold text-purple-300">Lançamentos de ${date.getDate()} de ${monthNames[date.getMonth()]}</h3><button id="close-modal-btn" class="text-gray-400 hover:text-white text-2xl">&times;</button></div><div class="space-y-4">${dayEvents.map(event => createEventCardHTML(event)).join('')}</div>`;
-                
+                domRefs.modalContent.innerHTML = `<div class="flex justify-between items-center mb-4"><h3 class="text-2xl font-bold text-indigo-300">Lançamentos de ${date.getDate()} de ${monthNames[date.getMonth()]}</h3><button id="close-modal-btn" class="text-gray-400 hover:text-white text-2xl">&times;</button></div><div class="space-y-4">${dayEvents.map(event => createEventCardHTML(event)).join('')}</div>`;
                 document.getElementById('close-modal-btn').onclick = closeModal;
-
-                domRefs.modalContent.querySelectorAll('[data-action="updateField"]').forEach(element => {
-                    const { gameName, fieldName, currentValue, fieldType } = element.dataset;
-                    if (fieldType === 'toggle') {
-                        const newValue = fieldName === 'Destaque' ? (currentValue.toLowerCase() === 's' ? 'N' : 'S') : (currentValue.toLowerCase() === 'sim' ? 'Não' : 'Sim');
-                        element.onclick = () => promptForFieldUpdate(gameName, fieldName, newValue);
-                    } else if (fieldType === 'volatility') {
-                        const event = dayEvents.find(e => e.game === gameName);
-                        if(event) element.onclick = () => promptForVolatilityChange(gameName, element.dataset.level, event.volatility);
-                    }
-                });
-
-                domRefs.modalContent.querySelectorAll('.delete-game-btn').forEach(btn => {
-                    btn.onclick = () => promptForGameDeletion(btn.dataset.gameName);
-                });
+                domRefs.modalContent.querySelectorAll('[data-action="updateField"]').forEach(element => { const { gameName, fieldName, newValue } = element.dataset; element.onclick = () => updateSheetField(gameName, fieldName, newValue); });
+                domRefs.modalContent.querySelectorAll('[data-action="updateVolatility"]').forEach(element => { const { gameName, level } = element.dataset; element.onclick = () => updateVolatility(gameName, level); });
+                domRefs.modalContent.querySelectorAll('.delete-game-btn').forEach(btn => { btn.onclick = () => promptForGameDeletion(btn.dataset.gameName); });
             };
             
             const createEventCardHTML = (event) => {
-                const statusHTML = (label, text, condition, fieldName, valueForTrue = 'Sim', valueForFalse = 'Não') => `
-                    <div class="flex items-center gap-2 cursor-pointer ${condition ? 'text-green-400' : 'text-red-400'}"
-                         data-action="updateField" data-field-type="toggle" data-game-name="${event.game}"
-                         data-field-name="${fieldName}" data-current-value="${condition ? valueForTrue : valueForFalse}">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">${condition ? '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />' : '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />'}</svg>
-                        <span>${label}: ${text}</span>
-                    </div>`;
-                
-                const activeInfo = statusHTML('Ativo no H2Bet', event.activeOnSite.toLowerCase() === 'sim' ? 'Sim' : 'Não', event.activeOnSite.toLowerCase() === 'sim', 'Ativo no site?');
-                const certInfo = statusHTML('Certificado', event.certificate.toLowerCase() === 'sim' ? 'Sim' : 'Não', event.certificate.toLowerCase() === 'sim', 'Certificado');
-                const isHighlight = event.destaque && event.destaque.toLowerCase() === 's';
-                const destaqueInfo = statusHTML('Destaque', isHighlight ? 'Sim' : 'Não', isHighlight, 'Destaque', 'S', 'N');
+                const statusHTML = (platform, platformColor, fieldLabel, dbField, fieldValue) => {
+                    const isPositive = (fieldValue || '').toLowerCase() === 'sim' || (fieldValue || '').toLowerCase() === 's';
+                    const newValue = (dbField.includes('destaque')) ? (isPositive ? 'N' : 'S') : (isPositive ? 'Não' : 'Sim');
+                    const icon = isPositive ? '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />' : '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />';
+                    return `<div class="flex items-center gap-2 cursor-pointer ${isPositive ? 'text-green-400' : 'text-red-400'}" data-action="updateField" data-game-name="${event.game}" data-field-name="${dbField}" data-new-value="${newValue}"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">${icon}</svg><span class="text-sm">${fieldLabel} <span class="${platformColor} font-bold">${platform}</span>: <strong>${fieldValue || 'N/A'}</strong></span></div>`;
+                };
+
                 const volatilityMeter = createVolatilityMeterHTML(event.volatility, event.game);
+                const hasHighlight = (event.h2bet_destaque && event.h2bet_destaque.toLowerCase() === 's') || (event.seubet_destaque && event.seubet_destaque.toLowerCase() === 's');
+                
+                let cardClasses = `bg-gray-700 p-4 rounded-lg flex flex-col md:flex-row gap-4 relative group ${hasHighlight ? 'card-highlight' : ''}`;
+                let errorHTML = '', adjustButtonHTML = '';
 
-                const cardClasses = `bg-gray-700 p-4 rounded-lg flex flex-col md:flex-row gap-4 relative group ${isHighlight ? 'card-highlight' : ''}`;
+                if (event.hasError) {
+                    cardClasses += ' border-2 border-yellow-400 ring-4 ring-yellow-400/50';
+                    errorHTML = `<div class="absolute top-2 left-2 bg-yellow-400 text-black font-bold text-xs py-1 px-2 rounded-full z-10">DADOS FALTANDO</div>`;
+                    adjustButtonHTML = `<button class="adjust-game-btn absolute bottom-2 right-2 p-2 bg-yellow-500 text-black rounded-lg opacity-0 group-hover:opacity-100 transition-opacity font-semibold text-sm" data-game-name="${event.game}">Ajustar</button>`;
+                }
 
-                return `<div class="${cardClasses}"><div class="w-full md:w-48 h-48 flex-shrink-0 flex items-center justify-center"><img src="${event.gameImage}" alt="Imagem do jogo ${event.game}" class="max-w-full max-h-full object-contain rounded-md" onerror="this.onerror=null;this.src='${PLACEHOLDER_IMAGE}';"></div><div class="flex-1 flex flex-col"><div><h4 class="text-xl font-bold text-white">${event.game}</h4><p class="text-sm bg-purple-500 inline-block px-2 py-0.5 rounded-full my-2">${event.gameType}</p></div><div class="flex-grow grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2"><div class="space-y-2">${activeInfo}${certInfo}${destaqueInfo}</div><div>${volatilityMeter}</div></div><div class="flex items-center gap-2 mt-3 pt-3 border-t border-gray-600"><img src="${event.providerImage}" alt="Logo de ${event.provider}" class="h-10 object-contain bg-gray-800 p-1 rounded" onerror="this.onerror=null;this.src='${PLACEHOLDER_PROVIDER_IMAGE}';"><span class="text-gray-300 font-semibold">${event.provider}</span></div></div><button class="delete-game-btn absolute top-2 right-2 p-2 bg-red-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" data-game-name="${event.game}" title="Remover Jogo"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg></button></div>`;
+                return `${errorHTML}<div class="${cardClasses}"><div class="w-full md:w-48 h-48 flex-shrink-0 flex items-center justify-center"><img src="${event.gameImage}" alt="${event.game}" class="max-w-full max-h-full object-contain rounded-md" onerror="this.onerror=null;this.src='${PLACEHOLDER_IMAGE}';"></div><div class="flex-1 flex flex-col"><div><h4 class="text-xl font-bold ${event.hasError ? 'text-yellow-400' : 'text-white'}">${event.game}</h4><p class="text-sm bg-indigo-500 inline-block px-2 py-0.5 rounded-full my-2">${event.gameType}</p></div><div class="flex-grow grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 mt-2"><div class="space-y-2 border-r border-gray-600 pr-4">${statusHTML('H2Bet', 'text-indigo-300', 'Ativo', 'h2bet_ativo', event.h2bet_ativo)}${statusHTML('H2Bet', 'text-indigo-300', 'Certificado', 'h2bet_certificado', event.h2bet_certificado)}${statusHTML('H2Bet', 'text-indigo-300', 'Destaque', 'h2bet_destaque', event.h2bet_destaque)}</div><div class="space-y-2">${statusHTML('SeuBet', 'text-green-300', 'Ativo', 'seubet_ativo', event.seubet_ativo)}${statusHTML('SeuBet', 'text-green-300', 'Certificado', 'seubet_certificado', event.seubet_certificado)}${statusHTML('SeuBet', 'text-green-300', 'Destaque', 'seubet_destaque', event.seubet_destaque)}</div></div><div class="mt-4">${volatilityMeter}</div><div class="flex items-center gap-2 mt-3 pt-3 border-t border-gray-600"><img src="${event.providerImage}" alt="${event.provider}" class="h-10 object-contain bg-gray-800 p-1 rounded" onerror="this.onerror=null;this.src='${PLACEHOLDER_PROVIDER_IMAGE}';"><span class="text-gray-300 font-semibold">${event.provider}</span></div></div><button class="delete-game-btn absolute top-2 right-2 p-2 bg-red-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" data-game-name="${event.game}" title="Remover Jogo"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg></button>${adjustButtonHTML}</div>`;
             };
 
-            const closeModal = () => domRefs.modal.classList.add('hidden');
-            const openAddGameModal = () => { domRefs.addGameForm.reset(); populateProviderDropdown(); renderAddVolatilityMeter(); domRefs.addGameModal.classList.remove('hidden'); };
+            const openAddGameModal = () => {
+                editMode = { active: false, originalId: null };
+                domRefs.addGameForm.reset();
+                domRefs.addGameForm.querySelector('h3').textContent = 'Adicionar Novo Lançamento';
+                domRefs.addGameForm.querySelector('button[type="submit"]').textContent = 'Salvar Jogo';
+                populateProviderDropdown();
+                renderAddVolatilityMeter();
+                domRefs.addGameModal.classList.remove('hidden');
+            };
+
+            const openEditModal = (gameName) => {
+                const game = erroredEvents.find(e => e.game === gameName);
+                if (!game) return showToast('Jogo não encontrado na lista de erros.', 'error');
+
+                editMode = { active: true, originalId: game.game };
+                const form = domRefs.addGameForm;
+                form.reset();
+
+                form.querySelector('h3').textContent = `Ajustar Jogo: ${game.game}`;
+                form.querySelector('button[type="submit"]').textContent = 'Salvar Ajustes';
+                if (game.date) form.data.valueAsDate = game.date;
+                form.provedor.value = game.provider;
+                form.jogo.value = game.game;
+                form.tipodejogo.value = game.gameType;
+                form.imagem.value = game.gameImage === PLACEHOLDER_IMAGE ? '' : game.gameImage;
+                form.imagemprovedor.value = game.providerImage === PLACEHOLDER_PROVIDER_IMAGE ? '' : game.providerImage;
+                
+                const setRadioValue = (name, value) => { const el = form.querySelector(`[name="${name}"][value="${value}"]`); if (el) el.checked = true; };
+                setRadioValue('h2bet_certificado', game.h2bet_certificado);
+                setRadioValue('h2bet_ativo', game.h2bet_ativo);
+                setRadioValue('h2bet_destaque', game.h2bet_destaque);
+                setRadioValue('seubet_certificado', game.seubet_certificado);
+                setRadioValue('seubet_ativo', game.seubet_ativo);
+                setRadioValue('seubet_destaque', game.seubet_destaque);
+                
+                populateProviderDropdown();
+                form.provedor.value = game.provider;
+                renderAddVolatilityMeter(game.volatility);
+
+                closeErrorModal();
+                domRefs.addGameModal.classList.remove('hidden');
+            };
+
             const closeAddGameModal = () => domRefs.addGameModal.classList.add('hidden');
             
             const populateProviderDropdown = () => {
                 const select = domRefs.addGameForm.querySelector('[name="provedor"]');
                 select.innerHTML = '<option value="">Selecione um provedor</option>';
-                providerData.forEach(provider => {
-                    const option = document.createElement('option');
-                    option.value = provider.name;
-                    option.textContent = provider.name;
-                    select.appendChild(option);
-                });
-                select.insertAdjacentHTML('beforeend', '<option value="__add_new__" class="text-purple-300 font-bold mt-2 pt-2 border-t border-gray-600">+ Novo Provedor</option>');
+                providerData.forEach(p => { const o = document.createElement('option'); o.value = o.textContent = p.name; select.appendChild(o); });
+                select.insertAdjacentHTML('beforeend', '<option value="__add_new__" class="text-indigo-300 font-bold mt-2 pt-2 border-t border-gray-600">+ Novo Provedor</option>');
             };
             
-            const handleProviderSelection = (e) => {
-                const selectedProviderName = e.target.value;
-                const provider = providerData.find(p => p.name === selectedProviderName);
-                const imageUrlInput = domRefs.addGameForm.querySelector('[name="imagemprovedor"]');
-                imageUrlInput.value = provider ? provider.link : '';
-            };
-
             const renderAddVolatilityMeter = (selectedLevel = '') => {
                  const levels = { baixo: 'Baixa', medio: 'Média', alto: 'Alta', 'muito alto': 'Muito Alta' };
                  domRefs.addVolatilityMeter.innerHTML = Object.keys(levels).map(key => `<div class="h-full rounded cursor-pointer ${key === selectedLevel ? {baixo:'bg-green-500',medio:'bg-yellow-500',alto:'bg-orange-500','muito alto':'bg-red-500'}[key] : 'bg-gray-600 hover:bg-gray-500'}" data-level="${key}" title="${levels[key]}"></div>`).join('');
@@ -487,271 +384,186 @@
             };
             
             const handleAddProviderSubmit = async (e) => {
-                e.preventDefault();
-                if (!auth.currentUser) return showToast('Você precisa estar logado para adicionar um provedor.', 'error');
-                const providerName = domRefs.addProviderForm['provider-name'].value.trim();
-                const providerLogo = domRefs.addProviderForm['provider-logo'].value.trim();
-                if (!providerName || !providerLogo) return showToast('Nome e URL da logo são obrigatórios.', 'error');
-                showToast('Salvando novo provedor...', 'success');
+                e.preventDefault(); if (!auth.currentUser) return showToast('Você precisa estar logado.', 'error');
+                const providerName = domRefs.addProviderForm['provider-name'].value.trim(), providerLogo = domRefs.addProviderForm['provider-logo'].value.trim();
+                if (!providerName || !providerLogo) return showToast('Nome e URL são obrigatórios.', 'error');
                 try {
                     await db.collection('provedores').doc(providerName).set({ nome: providerName, logoUrl: providerLogo });
-                    showToast('Provedor salvo com sucesso!', 'success');
-                    domRefs.addProviderModal.classList.add('hidden');
-                    domRefs.addProviderForm.reset();
+                    showToast('Provedor salvo!', 'success'); domRefs.addProviderModal.classList.add('hidden');
                     await fetchData();
                     const providerSelect = domRefs.addGameForm.querySelector('[name="provedor"]');
-                    providerSelect.value = providerName;
-                    providerSelect.dispatchEvent(new Event('change'));
-                } catch (error) {
-                    console.error('Erro ao adicionar provedor:', error);
-                    showToast(`Erro: ${error.message}`, 'error');
-                }
-            };
-            
-            const promptForVolatilityChange = (gameName, clickedLevel, currentVolatility) => {
-                const newLevel = clickedLevel === (currentVolatility || '').toLowerCase().trim().replace('é', 'e') ? '' : clickedLevel;
-                promptForFieldUpdate(gameName, 'Volatilidade', newLevel);
+                    providerSelect.value = providerName; providerSelect.dispatchEvent(new Event('change'));
+                } catch (error) { console.error('Erro:', error); showToast(`Erro: ${error.message}`, 'error'); }
             };
 
-            const updateSheetField = async (gameName, fieldName, newValue) => { // Removida a senha
-                if (!auth.currentUser) return showToast('Você precisa estar logado para alterar um jogo.', 'error');
-                console.log(`Atualizando '${fieldName}' de '${gameName}' para '${newValue}'`);
-                const keyMap = { 'Destaque': 'Destaque', 'Certificado': 'Certificado', 'Ativo no site?': 'Ativo no site?', 'Volatilidade': 'Volatilidade' };
-                const keyToUpdate = keyMap[fieldName];
-                if (!keyToUpdate) return showToast(`Erro: Campo desconhecido '${fieldName}'.`, 'error');
+            const updateSheetField = async (gameName, fieldName, newValue) => {
+                if (!auth.currentUser) return showToast('Você precisa estar logado.', 'error');
+                const [platform, field] = fieldName.split('_'); 
+                const realFieldName = { ativo: 'Ativo no site?', certificado: 'Certificado', destaque: 'Destaque' }[field];
+                const collectionName = platform === 'h2bet' ? 'jogos' : 'jogosseubet';
                 try {
-                    const updateData = {};
-                    updateData[keyToUpdate] = newValue;
-                    const gameRef = db.collection('jogos').doc(gameName);
-                    await gameRef.update(updateData);
-                    showToast(`'${fieldName}' de '${gameName}' atualizado com sucesso!`, 'success');
+                    const batch = db.batch(); const gameRef = db.collection(collectionName).doc(gameName);
+                    const updateData = {}; updateData[realFieldName] = newValue; batch.update(gameRef, updateData);
+                    await batch.commit();
+                    showToast(`'${gameName}' atualizado!`, 'success');
                     await fetchData();
-                    const updatedEvent = events.find(e => e.game === gameName);
-                    if(updatedEvent) {
-                        const dayEvents = events.filter(e => e.date.toDateString() === updatedEvent.date.toDateString());
-                        renderModalContent(updatedEvent.date, dayEvents);
-                    }
-                } catch (error) {
-                    console.error("Erro ao atualizar campo:", error);
-                    showToast(`Erro ao atualizar: ${error.message}`, 'error');
-                }
+                } catch (error) { console.error("Erro:", error); showToast(`Erro: ${error.message}`, 'error'); }
             };
 
-            const promptForFieldUpdate = (gameName, fieldName, newValue) => {
-                updateSheetField(gameName, fieldName, newValue);
+            const updateVolatility = async (gameName, newLevel) => {
+                if (!auth.currentUser) return showToast('Você precisa estar logado.', 'error');
+                const event = events.find(e => e.game === gameName) || erroredEvents.find(e => e.game === gameName);
+                const currentVolatility = event?.volatility || '';
+                const finalLevel = (newLevel || '').toLowerCase() === (currentVolatility || '').toLowerCase() ? '' : newLevel;
+                try {
+                    const batch = db.batch(); const updateData = { 'Volatilidade': finalLevel };
+                    batch.update(db.collection('jogos').doc(gameName), updateData);
+                    batch.update(db.collection('jogosseubet').doc(gameName), updateData);
+                    await batch.commit();
+                    showToast(`Volatilidade de '${gameName}' atualizada!`, 'success');
+                    await fetchData();
+                } catch (error) { console.error("Erro:", error); showToast(`Erro: ${error.message}`, 'error'); }
             };
 
             const deleteGameInSheet = async (gameName) => {
-                if (!auth.currentUser) return showToast('Você precisa estar logado para excluir um jogo.', 'error');
+                if (!auth.currentUser) return showToast('Você precisa estar logado.', 'error');
                 try {
-                    await db.collection('jogos').doc(gameName).delete();
-                    showToast(`"${gameName}" foi excluído com sucesso.`, 'success');
-                    closeModal();
-                    fetchData();
-                } catch (error) {
-                    console.error("Erro ao excluir jogo:", error);
-                    showToast(`Erro ao excluir: ${error.message}`, 'error');
-                }
+                    const batch = db.batch();
+                    batch.delete(db.collection('jogos').doc(gameName)); batch.delete(db.collection('jogosseubet').doc(gameName));
+                    await batch.commit();
+                    showToast(`"${gameName}" foi excluído de ambas as plataformas.`, 'success');
+                    closeModal(); closeErrorModal(); await fetchData();
+                } catch (error) { console.error("Erro:", error); showToast(`Erro: ${error.message}`, 'error'); }
             };
 
-            const promptForGameDeletion = (gameName) => {
-                if (confirm(`Tem certeza que deseja remover "${gameName}"? Esta ação não pode ser desfeita.`)) {
-                    deleteGameInSheet(gameName);
-                }
-            };
+            const promptForGameDeletion = (gameName) => { if (confirm(`Tem certeza que deseja remover "${gameName}" de AMBAS as plataformas?`)) { deleteGameInSheet(gameName); } };
             
             const handleAddGameSubmit = async (e) => {
-                e.preventDefault();
-                if (!auth.currentUser) return showToast('Você precisa estar logado para adicionar um jogo.', 'error');
+                e.preventDefault(); if (!auth.currentUser) return showToast('Você precisa estar logado.', 'error');
                 const formData = new FormData(domRefs.addGameForm);
                 const jogoNome = formData.get('jogo').trim();
                 if (!jogoNome) return showToast('O nome do jogo não pode estar vazio.', 'error');
-                const dataInput = formData.get('data');
-                const dataCorreta = new Date(dataInput + 'T00:00:00');
-                const gameData = {
-                    'Data': dataCorreta,
-                    'Provedor': formData.get('provedor'),
-                    'Jogo': jogoNome,
-                    'Tipo de jogo': formData.get('tipodejogo'),
-                    'Imagem': formData.get('imagem'),
-                    'Imagem provedor': formData.get('imagemprovedor'),
-                    'Volatilidade': formData.get('volatilidade'),
-                    'Certificado': formData.get('certificado'),
-                    'Ativo no site?': formData.get('ativonosite'),
-                    'Destaque': formData.get('destaque')
-                };
-                try {
-                    showToast('Salvando novo jogo...', 'success');
-                    await db.collection('jogos').doc(jogoNome).set(gameData);
-                    showToast('Jogo salvo com sucesso!', 'success');
-                    closeAddGameModal();
-                    fetchData();
-                } catch (error) {
-                    console.error("Erro ao salvar o jogo:", error);
-                    showToast(`Erro ao salvar: ${error.message}`, 'error');
+                const dataCorreta = new Date(formData.get('data') + 'T00:00:00');
+                const gameData = { 'Data': dataCorreta, 'Provedor': formData.get('provedor'), 'Jogo': jogoNome, 'Tipo de jogo': formData.get('tipodejogo'), 'Imagem': formData.get('imagem'), 'Imagem provedor': formData.get('imagemprovedor'), 'Volatilidade': formData.get('volatilidade') };
+                
+                const batch = db.batch();
+                
+                if (editMode.active && editMode.originalId) {
+                    batch.delete(db.collection('jogos').doc(editMode.originalId));
+                    batch.delete(db.collection('jogosseubet').doc(editMode.originalId));
                 }
+                
+                batch.set(db.collection('jogos').doc(jogoNome), { ...gameData, 'Ativo no site?': formData.get('h2bet_ativo'), 'Certificado': formData.get('h2bet_certificado'), 'Destaque': formData.get('h2bet_destaque') });
+                batch.set(db.collection('jogosseubet').doc(jogoNome), { ...gameData, 'Ativo no site?': formData.get('seubet_ativo'), 'Certificado': formData.get('seubet_certificado'), 'Destaque': formData.get('seubet_destaque') });
+                
+                try {
+                    showToast(editMode.active ? 'Ajustando jogo...' : 'Salvando novo jogo...', 'success');
+                    await batch.commit();
+                    showToast(editMode.active ? 'Jogo ajustado com sucesso!' : 'Jogo salvo com sucesso!', 'success');
+                    closeAddGameModal();
+                    await fetchData();
+                } catch (error) { console.error("Erro:", error); showToast(`Erro: ${error.message}`, 'error'); }
             };
             
             const updateFilterLabel = () => {
-                if (selectedProviders.length === 0 || selectedProviders.includes('All')) {
-                    domRefs.filterLabel.textContent = 'Todos os Provedores';
-                } else if (selectedProviders.length === 1) {
-                    domRefs.filterLabel.textContent = selectedProviders[0];
-                } else {
-                    domRefs.filterLabel.textContent = `${selectedProviders.length} provedores selecionados`;
-                }
+                if (selectedProviders.length === 0 || selectedProviders.includes('All')) domRefs.filterLabel.textContent = 'Todos os Provedores';
+                else if (selectedProviders.length === 1) domRefs.filterLabel.textContent = selectedProviders[0];
+                else domRefs.filterLabel.textContent = `${selectedProviders.length} provedores selecionados`;
             };
             
             const handleProviderToggle = (provider) => {
-                if (provider === 'All') {
-                    selectedProviders = ['All'];
-                } else {
-                    let newSelection = selectedProviders.filter(p => p !== 'All');
-                    if (newSelection.includes(provider)) {
-                        newSelection = newSelection.filter(p => p !== provider);
-                    } else {
-                        newSelection.push(provider);
-                    }
-                    selectedProviders = newSelection.length === 0 ? ['All'] : newSelection;
-                }
-                renderFilters();
-                renderCalendars();
+                if (provider === 'All') selectedProviders = ['All'];
+                else { let newSelection = selectedProviders.filter(p => p !== 'All'); if (newSelection.includes(provider)) newSelection = newSelection.filter(p => p !== provider); else newSelection.push(provider); selectedProviders = newSelection.length === 0 ? ['All'] : newSelection; }
+                renderFilters(); renderCalendars();
             };
             
             const handleSearchInput = (e) => {
-                searchQuery = e.target.value;
-                const suggestions = getFilteredEvents().slice(0, 5);
-                if (searchQuery && suggestions.length > 0) {
-                    domRefs.autocompleteList.innerHTML = suggestions.map(event => `<div class="p-2 hover:bg-purple-600 cursor-pointer" data-game="${event.game}">${event.game}</div>`).join('');
-                    domRefs.autocompleteList.classList.remove('hidden');
-                } else {
-                    domRefs.autocompleteList.classList.add('hidden');
-                }
+                searchQuery = e.target.value; const suggestions = getFilteredEvents().slice(0, 5);
+                if (searchQuery && suggestions.length > 0) { domRefs.autocompleteList.innerHTML = suggestions.map(event => `<div class="p-2 hover:bg-indigo-600 cursor-pointer" data-game="${event.game}">${event.game}</div>`).join(''); domRefs.autocompleteList.classList.remove('hidden'); } else { domRefs.autocompleteList.classList.add('hidden'); }
                 renderCalendars();
             };
             
-            const handleSuggestionClick = (e) => {
-                if (e.target.dataset.game) {
-                    const selectedGame = e.target.dataset.game;
-                    domRefs.searchInput.value = selectedGame;
-                    searchQuery = selectedGame;
-                    domRefs.autocompleteList.classList.add('hidden');
-                    const event = events.find(ev => ev.game === selectedGame);
-                    if (event) { currentDate = new Date(event.date.getFullYear(), event.date.getMonth(), 1); }
-                    renderCalendars();
-                }
-            };
-
             const renderCarousel = () => {
                 if (carouselInterval) clearInterval(carouselInterval);
                 const getUniqueCarouselEvents = () => {
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0);
-                    const twoDaysAgo = new Date(today);
-                    twoDaysAgo.setDate(today.getDate() - 2);
-                    const highlightEvents = events.filter(event => event.destaque.toLowerCase() === 's' && event.date >= twoDaysAgo).sort((a, b) => a.date - b.date);
-                    const uniqueGames = new Map();
-                    for (const event of highlightEvents) { if (!uniqueGames.has(event.game)) { uniqueGames.set(event.game, event); } }
-                    return Array.from(uniqueGames.values());
+                    const today = new Date(); today.setHours(0, 0, 0, 0); const twoDaysAgo = new Date(today); twoDaysAgo.setDate(today.getDate() - 2);
+                    const highlightEvents = events.filter(event => !event.hasError && ((event.h2bet_destaque && event.h2bet_destaque.toLowerCase() === 's') || (event.seubet_destaque && event.seubet_destaque.toLowerCase() === 's')) && event.date >= twoDaysAgo).sort((a, b) => a.date - b.date);
+                    const uniqueGames = new Map(); for (const event of highlightEvents) { if (!uniqueGames.has(event.game)) { uniqueGames.set(event.game, event); } } return Array.from(uniqueGames.values());
                 };
                 const carouselEvents = getUniqueCarouselEvents();
                 if (carouselEvents.length === 0) { domRefs.carouselWrapper.innerHTML = '<div class="text-center w-full text-gray-400 p-8">Nenhum jogo em destaque.</div>'; return; }
-                const getVisibleSlidesCount = () => { if (window.innerWidth <= 640) return 1; if (window.innerWidth <= 1024) return 2; return 3; }
-                const numVisibleSlides = getVisibleSlidesCount();
-                const enableInfiniteScroll = carouselEvents.length > numVisibleSlides;
-                let slides = carouselEvents;
-                if (enableInfiniteScroll) { slides = [...carouselEvents, ...carouselEvents.slice(0, numVisibleSlides)]; }
+                const getVisibleSlidesCount = () => { if (window.innerWidth <= 640) return 1; if (window.innerWidth <= 1024) return 2; return 3; }; const numVisibleSlides = getVisibleSlidesCount(); const enableInfiniteScroll = carouselEvents.length > numVisibleSlides; let slides = carouselEvents; if (enableInfiniteScroll) { slides = [...carouselEvents, ...carouselEvents.slice(0, numVisibleSlides)]; }
                 domRefs.carouselWrapper.innerHTML = slides.map(event => `<div class="carousel-slide" data-gamedate="${event.date.toISOString()}"><img src="${event.gameImage}" alt="${event.game}" onerror="this.onerror=null;this.src='${PLACEHOLDER_IMAGE}';"><div class="slide-title">${event.game}</div></div>`).join('');
-                domRefs.carouselWrapper.style.transform = `translateX(0)`;
-                domRefs.carouselWrapper.style.transition = 'none';
-                if (enableInfiniteScroll) {
-                    let currentIndex = 0;
-                    const totalUniqueSlides = carouselEvents.length;
-                    const advanceCarousel = () => {
-                        if (domRefs.carouselWrapper.children.length === 0) return;
-                        const slideWidth = domRefs.carouselWrapper.children[0].getBoundingClientRect().width;
-                        if (slideWidth === 0) return;
-                        currentIndex++;
-                        domRefs.carouselWrapper.style.transition = 'transform 0.5s ease-in-out';
-                        domRefs.carouselWrapper.style.transform = `translateX(-${currentIndex * slideWidth}px)`;
-                        if (currentIndex >= totalUniqueSlides) { setTimeout(() => { domRefs.carouselWrapper.style.transition = 'none'; currentIndex = 0; domRefs.carouselWrapper.style.transform = `translateX(0)`; }, 500); }
-                    };
-                    if (carouselInterval) clearInterval(carouselInterval);
-                    carouselInterval = setInterval(advanceCarousel, 3000);
-                }
+                if (enableInfiniteScroll) { let currentIndex = 0; const totalUniqueSlides = carouselEvents.length; const advanceCarousel = () => { if (domRefs.carouselWrapper.children.length === 0) return; const slideWidth = domRefs.carouselWrapper.children[0].getBoundingClientRect().width; if (slideWidth === 0) return; currentIndex++; domRefs.carouselWrapper.style.transition = 'transform 0.5s ease-in-out'; domRefs.carouselWrapper.style.transform = `translateX(-${currentIndex * slideWidth}px)`; if (currentIndex >= totalUniqueSlides) { setTimeout(() => { domRefs.carouselWrapper.style.transition = 'none'; currentIndex = 0; domRefs.carouselWrapper.style.transform = `translateX(0)`; }, 500); } }; if (carouselInterval) clearInterval(carouselInterval); carouselInterval = setInterval(advanceCarousel, 3000); }
             };
 
             const handleCarouselClick = (e) => {
                 const slide = e.target.closest('.carousel-slide');
-                if (!slide || slide.dataset.dragged === 'true') { if(slide) delete slide.dataset.dragged; return; };
+                if (!slide) return;
                 const dateString = slide.dataset.gamedate;
+                if (!dateString) return;
                 const eventDate = new Date(dateString);
                 currentDate = new Date(eventDate.getFullYear(), eventDate.getMonth(), 1);
                 renderCalendars();
-                const dayEvents = events.filter(ev => ev.date.toDateString() === eventDate.toDateString());
-                if (dayEvents.length > 0) { renderModal(eventDate, dayEvents); }
-            };
-            
-            const renderParticles = () => {
-                for (let i = 0; i < 50; i++) {
-                    const particle = document.createElement('div');
-                    particle.className = 'particle';
-                    const size = Math.random() * 4 + 1;
-                    particle.style.width = `${size}px`;
-                    particle.style.height = `${size}px`;
-                    particle.style.left = `${Math.random() * 100}%`;
-                    particle.style.top = `${Math.random() * 100}%`;
-                    particle.style.animationDuration = `${Math.random() * 20 + 10}s`;
-                    particle.style.animationDelay = `${Math.random() * -30}s`;
-                    domRefs.particlesContainer.appendChild(particle);
+                const dayEvents = events.filter(ev => ev.date && ev.date.toDateString() === eventDate.toDateString());
+                if (dayEvents.length > 0) {
+                    renderModal(eventDate, dayEvents);
                 }
             };
 
-            // --- LÓGICA DE ARRASTE DO CARROSSEL ---
-            let isDown = false, startX, scrollLeft, hasDragged = false;
-            const startDragging = (e) => { isDown = true; hasDragged = false; domRefs.carouselContainer.classList.add('grabbing'); startX = e.pageX || e.touches[0].pageX - domRefs.carouselContainer.offsetLeft; scrollLeft = domRefs.carouselContainer.scrollLeft; if (carouselInterval) clearInterval(carouselInterval); };
-            const stopDragging = () => { isDown = false; domRefs.carouselContainer.classList.remove('grabbing'); /* Reinicia o carrossel automático aqui se desejar */ };
-            const whileDragging = (e) => { if (!isDown) return; e.preventDefault(); hasDragged = true; const x = e.pageX || e.touches[0].pageX - domRefs.carouselContainer.offsetLeft; const walk = (x - startX) * 2; domRefs.carouselContainer.scrollLeft = scrollLeft - walk; };
+            const startDragging = (e) => {
+                isDown = true; hasDragged = false; domRefs.carouselContainer.classList.add('grabbing');
+                startX = e.pageX || e.touches[0].pageX - domRefs.carouselContainer.offsetLeft;
+                scrollLeft = domRefs.carouselContainer.scrollLeft;
+                if (carouselInterval) clearInterval(carouselInterval);
+            };
+            const stopDragging = () => { isDown = false; domRefs.carouselContainer.classList.remove('grabbing');};
+            const whileDragging = (e) => {
+                if (!isDown) return; e.preventDefault(); hasDragged = true;
+                const x = e.pageX || e.touches[0].pageX - domRefs.carouselContainer.offsetLeft;
+                const walk = (x - startX) * 2;
+                domRefs.carouselContainer.scrollLeft = scrollLeft - walk;
+            };
 
-            // INICIA APLICAÇÃO E EVENTOS
+            const renderParticles = () => {
+                for (let i = 0; i < 50; i++) { const p = document.createElement('div'); p.className = 'particle'; const s = Math.random() * 4 + 1; p.style.width = `${s}px`; p.style.height = `${s}px`; p.style.left = `${Math.random() * 100}%`; p.style.top = `${Math.random() * 100}%`; p.style.animationDuration = `${Math.random() * 20 + 10}s`; p.style.animationDelay = `${Math.random() * -30}s`; domRefs.particlesContainer.appendChild(p); }
+            };
+
+            // --- EVENT LISTENERS ---
             domRefs.addGameBtn.onclick = openAddGameModal;
             domRefs.cancelAddGameBtn.onclick = closeAddGameModal;
             domRefs.addGameForm.onsubmit = handleAddGameSubmit;
+            domRefs.showErrorsBtn.onclick = openErrorModal;
             const providerSelect = domRefs.addGameForm.querySelector('[name="provedor"]');
-            providerSelect.addEventListener('change', (e) => {
-                if (providerSelect.value === '__add_new__') {
-                    domRefs.addProviderModal.classList.remove('hidden');
-                    providerSelect.value = '';
-                } else {
-                    handleProviderSelection(e);
-                }
-            });
+            providerSelect.addEventListener('change', (e) => { if (providerSelect.value === '__add_new__') { domRefs.addProviderModal.classList.remove('hidden'); providerSelect.value = ''; } else { const p = providerData.find(p => p.name === e.target.value); domRefs.addGameForm.querySelector('[name="imagemprovedor"]').value = p ? p.link : ''; } });
             domRefs.cancelAddProviderBtn.onclick = () => domRefs.addProviderModal.classList.add('hidden');
             domRefs.addProviderForm.onsubmit = handleAddProviderSubmit;
             domRefs.prevBtn.onclick = () => { currentDate.setMonth(currentDate.getMonth() - 2); renderCalendars(); };
             domRefs.nextBtn.onclick = () => { currentDate.setMonth(currentDate.getMonth() + 2); renderCalendars(); };
             domRefs.todayBtn.onclick = () => { currentDate = new Date(); renderCalendars(); };
             domRefs.modal.onclick = (e) => { if (e.target === domRefs.modal) closeModal(); };
+            domRefs.errorModal.onclick = (e) => { if (e.target === domRefs.errorModal) closeErrorModal(); };
             domRefs.searchInput.oninput = handleSearchInput;
-            domRefs.autocompleteList.onclick = handleSuggestionClick;
+            domRefs.autocompleteList.onclick = (e) => { if (e.target.dataset.game) { const selectedGame = e.target.dataset.game; domRefs.searchInput.value = searchQuery = selectedGame; domRefs.autocompleteList.classList.add('hidden'); const event = events.find(ev => ev.game === selectedGame); if (event) { currentDate = new Date(event.date.getFullYear(), event.date.getMonth(), 1); } renderCalendars(); } };
             domRefs.toggleFilterBtn.onclick = () => { domRefs.filterOptions.classList.toggle('hidden'); domRefs.filterChevron.classList.toggle('rotate-180'); };
             domRefs.loginBtn.onclick = () => domRefs.loginModal.classList.remove('hidden');
             domRefs.cancelLoginBtn.onclick = () => domRefs.loginModal.classList.add('hidden');
             domRefs.logoutBtn.onclick = () => { auth.signOut(); showToast('Você foi desconectado.', 'success'); };
-            domRefs.loginForm.onsubmit = async (e) => { e.preventDefault(); const email = domRefs.loginForm.email.value; const password = domRefs.loginForm.password.value; try { await auth.signInWithEmailAndPassword(email, password); domRefs.loginModal.classList.add('hidden'); showToast('Login efetuado com sucesso!', 'success'); } catch (error) { console.error("Erro no login:", error); showToast(`Erro: ${error.message}`, 'error'); } };
+            domRefs.loginForm.onsubmit = async (e) => { e.preventDefault(); const { email, password } = domRefs.loginForm; try { await auth.signInWithEmailAndPassword(email.value, password.value); domRefs.loginModal.classList.add('hidden'); showToast('Login efetuado com sucesso!', 'success'); } catch (error) { console.error("Erro no login:", error); showToast(`Erro: ${error.message}`, 'error'); } };
+            
             domRefs.carouselContainer.addEventListener('mousedown', startDragging);
             domRefs.carouselContainer.addEventListener('mouseleave', stopDragging);
             domRefs.carouselContainer.addEventListener('mouseup', stopDragging);
             domRefs.carouselContainer.addEventListener('mousemove', whileDragging);
-            domRefs.carouselContainer.addEventListener('touchstart', startDragging);
+            domRefs.carouselContainer.addEventListener('touchstart', startDragging, { passive: true });
             domRefs.carouselContainer.addEventListener('touchend', stopDragging);
             domRefs.carouselContainer.addEventListener('touchmove', whileDragging);
-            domRefs.carouselContainer.addEventListener('click', (e) => { if(hasDragged) { e.stopPropagation(); e.preventDefault(); } else { handleCarouselClick(e); } }, true);
+            domRefs.carouselContainer.addEventListener('click', (e) => { if (hasDragged) { e.stopPropagation(); e.preventDefault(); } else { handleCarouselClick(e); } }, true);
+
             window.addEventListener('resize', renderCarousel);
             document.onclick = (e) => { if (!e.target.closest('.relative')) domRefs.autocompleteList.classList.add('hidden'); if (!domRefs.toggleFilterBtn.contains(e.target) && !domRefs.filterOptions.contains(e.target)) { domRefs.filterOptions.classList.add('hidden'); domRefs.filterChevron.classList.remove('rotate-180'); } };
 
-            renderParticles();
-            fetchData();
+            renderParticles(); fetchData();
         });
     </script>
 </body>
