@@ -135,13 +135,31 @@
     <div id="error-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4 hidden"><div id="error-modal-content" class="bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6"></div></div>
     
     <div id="extraction-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4 hidden">
-        <div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-sm p-6 space-y-4">
+        <div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-md p-6 space-y-4">
             <h3 class="text-2xl font-bold text-purple-300 mb-4">Extrair Relatório</h3>
-            <p class="text-gray-400 text-sm">Selecione o mês e ano para gerar o Excel com todos os lançamentos.</p>
+            <p class="text-gray-400 text-sm">Selecione o período para gerar o Excel.</p>
             
-            <div>
+            <div class="flex items-center justify-between bg-gray-700 p-2 rounded-lg mb-2">
+                <span class="text-sm text-gray-200">Selecionar múltiplos meses?</span>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="multi-month-toggle" class="sr-only peer">
+                    <div class="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                </label>
+            </div>
+
+            <div id="single-month-container">
                 <label class="block text-sm font-medium text-gray-300">Mês de Referência</label>
                 <input type="month" id="extraction-month" class="w-full bg-gray-700 rounded-lg p-2 mt-1 text-white" style="color-scheme: dark;">
+            </div>
+
+            <div id="multi-month-container" class="hidden space-y-2">
+                <div class="flex items-center gap-2 mb-2">
+                    <input type="checkbox" id="select-all-months" class="w-4 h-4 text-purple-600 bg-gray-700 border-gray-600 rounded">
+                    <label for="select-all-months" class="text-sm font-medium text-white">Todos os meses disponíveis</label>
+                </div>
+                <label class="block text-sm font-medium text-gray-300">Selecione os meses:</label>
+                <div id="month-selection-grid" class="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto bg-gray-900 p-2 rounded border border-gray-700">
+                    </div>
             </div>
 
             <div class="flex justify-end gap-4 pt-4">
@@ -219,6 +237,15 @@
             cancelExtractionBtn: document.getElementById('cancel-extraction-btn'),
             confirmExtractionBtn: document.getElementById('confirm-extraction-btn'),
             extractionMonthInput: document.getElementById('extraction-month')
+        };
+        
+        // Novas referências para a extração múltipla
+        const extractionRefs = {
+            toggle: document.getElementById('multi-month-toggle'),
+            singleContainer: document.getElementById('single-month-container'),
+            multiContainer: document.getElementById('multi-month-container'),
+            selectAll: document.getElementById('select-all-months'),
+            grid: document.getElementById('month-selection-grid')
         };
 
         auth.onAuthStateChanged(user => {
@@ -679,28 +706,106 @@
             };
 
             // --- LÓGICA DE EXTRAÇÃO EXCEL ---
+
+            const getAvailableMonths = () => {
+                // Cria um Set de strings "YYYY-MM" baseados nos eventos existentes
+                const uniqueMonths = new Set();
+                events.forEach(e => {
+                    if (e.date) {
+                        const year = e.date.getFullYear();
+                        const month = String(e.date.getMonth() + 1).padStart(2, '0');
+                        uniqueMonths.add(`${year}-${month}`);
+                    }
+                });
+                // Retorna ordenado
+                return Array.from(uniqueMonths).sort().reverse();
+            };
+
+            const populateMonthCheckboxes = () => {
+                const months = getAvailableMonths();
+                extractionRefs.grid.innerHTML = '';
+                
+                if (months.length === 0) {
+                    extractionRefs.grid.innerHTML = '<span class="text-xs text-gray-500 col-span-2">Nenhum dado encontrado.</span>';
+                    return;
+                }
+
+                months.forEach(monthStr => {
+                    const [year, month] = monthStr.split('-');
+                    const label = `${monthNames[parseInt(month) - 1]} ${year}`; 
+                    
+                    const div = document.createElement('div');
+                    div.className = 'flex items-center gap-2';
+                    div.innerHTML = `
+                        <input type="checkbox" value="${monthStr}" class="month-checkbox w-4 h-4 text-purple-600 bg-gray-700 border-gray-600 rounded">
+                        <label class="text-sm text-gray-300">${label}</label>
+                    `;
+                    extractionRefs.grid.appendChild(div);
+                });
+            };
+
             const openExtractionModal = () => {
+                // Configuração padrão
                 const now = new Date();
                 const monthStr = now.toISOString().slice(0, 7);
                 domRefs.extractionMonthInput.value = monthStr;
+                
+                extractionRefs.toggle.checked = false;
+                extractionRefs.selectAll.checked = false;
+                toggleExtractionMode();
+                populateMonthCheckboxes();
+
                 domRefs.extractionModal.classList.remove('hidden');
+            };
+
+            const toggleExtractionMode = () => {
+                const isMulti = extractionRefs.toggle.checked;
+                if (isMulti) {
+                    extractionRefs.singleContainer.classList.add('hidden');
+                    extractionRefs.multiContainer.classList.remove('hidden');
+                } else {
+                    extractionRefs.singleContainer.classList.remove('hidden');
+                    extractionRefs.multiContainer.classList.add('hidden');
+                }
+            };
+
+            const handleSelectAllMonths = () => {
+                const isChecked = extractionRefs.selectAll.checked;
+                const checkboxes = extractionRefs.grid.querySelectorAll('.month-checkbox');
+                checkboxes.forEach(cb => cb.checked = isChecked);
             };
 
             const closeExtractionModal = () => domRefs.extractionModal.classList.add('hidden');
 
             const generateExcel = () => {
-                const selectedValue = domRefs.extractionMonthInput.value;
-                if (!selectedValue) return showToast('Selecione um mês!', 'error');
+                let targetMonths = []; 
+                let fileNameLabel = "";
 
-                const [year, month] = selectedValue.split('-').map(Number);
-                
-                const filteredEvents = events.filter(e => 
-                    e.date && 
-                    e.date.getFullYear() === year && 
-                    e.date.getMonth() === (month - 1)
-                );
+                if (extractionRefs.toggle.checked) {
+                    // MODO MÚLTIPLO
+                    const checkedBoxes = extractionRefs.grid.querySelectorAll('.month-checkbox:checked');
+                    if (checkedBoxes.length === 0) return showToast('Selecione pelo menos um mês!', 'error');
+                    
+                    checkedBoxes.forEach(cb => targetMonths.push(cb.value));
+                    fileNameLabel = "Multiplos_Meses";
+                } else {
+                    // MODO SIMPLES
+                    const selectedValue = domRefs.extractionMonthInput.value;
+                    if (!selectedValue) return showToast('Selecione um mês!', 'error');
+                    targetMonths.push(selectedValue);
+                    fileNameLabel = selectedValue;
+                }
 
-                if (filteredEvents.length === 0) return showToast('Nenhum jogo encontrado neste mês.', 'error');
+                // Filtra os eventos
+                const filteredEvents = events.filter(e => {
+                    if (!e.date) return false;
+                    const eventYear = e.date.getFullYear();
+                    const eventMonth = String(e.date.getMonth() + 1).padStart(2, '0');
+                    // Compara com as strings "YYYY-MM"
+                    return targetMonths.includes(`${eventYear}-${eventMonth}`);
+                });
+
+                if (filteredEvents.length === 0) return showToast('Nenhum jogo encontrado no período selecionado.', 'error');
 
                 const excelData = filteredEvents.map(e => ({
                     "Data": e.date.toLocaleDateString('pt-BR'),
@@ -718,6 +823,7 @@
                     "Imagem URL": e.gameImage
                 }));
 
+                // Ordena por data (Antigo -> Novo)
                 excelData.sort((a, b) => {
                     const dateA = new Date(a.Data.split('/').reverse().join('-'));
                     const dateB = new Date(b.Data.split('/').reverse().join('-'));
@@ -734,7 +840,7 @@
                 const workbook = XLSX.utils.book_new();
                 XLSX.utils.book_append_sheet(workbook, worksheet, "Lançamentos");
 
-                const fileName = `Lancamentos_${selectedValue}.xlsx`;
+                const fileName = `Lancamentos_${fileNameLabel}.xlsx`;
                 XLSX.writeFile(workbook, fileName);
                 
                 showToast(`Download iniciado: ${fileName}`, 'success');
@@ -768,6 +874,9 @@
             domRefs.cancelExtractionBtn.onclick = closeExtractionModal;
             domRefs.confirmExtractionBtn.onclick = generateExcel;
             domRefs.extractionModal.onclick = (e) => { if (e.target === domRefs.extractionModal) closeExtractionModal(); };
+            // Novos listeners
+            extractionRefs.toggle.onchange = toggleExtractionMode;
+            extractionRefs.selectAll.onchange = handleSelectAllMonths;
 
             domRefs.carouselContainer.addEventListener('mousedown', startDragging);
             domRefs.carouselContainer.addEventListener('mouseleave', stopDragging);
