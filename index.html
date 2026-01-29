@@ -366,12 +366,42 @@
 
         const renderCalendars = () => {
             domRefs.calendarsContainer.innerHTML = '';
+            
+            // Dados do Mês Atual
             const calendarData = [{ year: currentDate.getFullYear(), month: currentDate.getMonth() }];
-            const nextMonthDate = new Date(currentDate); nextMonthDate.setMonth(nextMonthDate.getMonth() + 1);
+            
+            // Dados do Próximo Mês (CORRIGIDO)
+            const nextMonthDate = new Date(currentDate);
+            nextMonthDate.setDate(1); // <--- ESSA LINHA CORRIGE O BUG DE FEVEREIRO
+            nextMonthDate.setMonth(nextMonthDate.getMonth() + 1);
+            
             calendarData.push({ year: nextMonthDate.getFullYear(), month: nextMonthDate.getMonth() });
+            
+            // Busca eventos filtrados
             const filteredEvents = getFilteredEvents();
-            calendarData.forEach(({ year, month }) => domRefs.calendarsContainer.insertAdjacentHTML('beforeend', createCalendarHTML(year, month, filteredEvents)));
-            domRefs.calendarsContainer.querySelectorAll('.calendar-day').forEach(dayCell => { const day = parseInt(dayCell.dataset.day); const dayEvents = getFilteredEvents().filter(e => e.date && e.date.getFullYear() === parseInt(dayCell.dataset.year) && e.date.getMonth() === parseInt(dayCell.dataset.month) && e.date.getDate() === day); if (dayEvents.length > 0) dayCell.onclick = () => renderModal(new Date(dayCell.dataset.year, dayCell.dataset.month, day), dayEvents); });
+            
+            // Renderiza o HTML dos calendários
+            calendarData.forEach(({ year, month }) => 
+                domRefs.calendarsContainer.insertAdjacentHTML('beforeend', createCalendarHTML(year, month, filteredEvents))
+            );
+            
+            // Readiciona os eventos de clique nos dias (para abrir o modal)
+            domRefs.calendarsContainer.querySelectorAll('.calendar-day').forEach(dayCell => { 
+                const day = parseInt(dayCell.dataset.day); 
+                const year = parseInt(dayCell.dataset.year);
+                const month = parseInt(dayCell.dataset.month);
+
+                const dayEvents = getFilteredEvents().filter(e => 
+                    e.date && 
+                    e.date.getFullYear() === year && 
+                    e.date.getMonth() === month && 
+                    e.date.getDate() === day
+                ); 
+                
+                if (dayEvents.length > 0) {
+                    dayCell.onclick = () => renderModal(new Date(year, month, day), dayEvents); 
+                }
+            });
         };
 
         const createCalendarHTML = (year, month, filteredEvents) => {
