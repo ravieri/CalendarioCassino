@@ -145,6 +145,36 @@
         </div>
     </div>
 
+    <div id="active-history-popup" class="fixed bottom-5 left-5 z-[60] bg-gray-800 border border-gray-700 rounded-lg shadow-2xl w-80 flex flex-col hidden transition-transform duration-300">
+        <div id="active-history-header" class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-t-lg flex justify-between items-center cursor-pointer transition-colors">
+            <span class="font-bold text-sm flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg> 
+                Histórico de Ativação
+            </span>
+            <svg id="active-history-chevron" class="w-5 h-5 transform rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+        </div>
+        <div id="active-history-body" class="p-3 max-h-60 overflow-y-auto space-y-3 hidden bg-gray-900 border-t border-gray-700 custom-scrollbar"></div>
+        <div id="active-history-footer" class="p-2 bg-gray-900 rounded-b-lg border-t border-gray-700 hidden">
+            <button id="open-full-active-btn" class="w-full text-xs text-blue-400 hover:text-blue-300 font-semibold text-center py-1 flex items-center justify-center gap-1 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+                Ver Histórico Completo
+            </button>
+        </div>
+    </div>
+
+    <div id="full-active-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4 hidden">
+        <div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl h-[80vh] flex flex-col p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-2xl font-bold text-blue-300">Histórico Completo de Ativações</h3>
+                <button id="close-full-active-btn" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div class="mb-4">
+                <input type="text" id="full-active-search" placeholder="Pesquisar por nome do jogo..." class="w-full bg-gray-700 text-white placeholder-gray-400 rounded-lg p-3 border border-gray-600 focus:border-blue-500 outline-none transition">
+            </div>
+            <div id="full-active-list" class="flex-1 overflow-y-auto space-y-2 pr-2 custom-scrollbar"></div>
+        </div>
+    </div>
+
     <div id="add-game-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4 hidden">
         <form id="add-game-form" class="bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 space-y-4">
             <h3 class="text-2xl font-bold text-indigo-300 mb-4">Adicionar Novo Lançamento</h3>
@@ -258,8 +288,14 @@
         let isDown = false, startX, scrollLeft, hasDragged = false;
         let certFilterValue = 'All';
         let certModalSearchQuery = '';
+        
+        // Váriaveis de controle dos listeners
         let unsubscribeHistory = null;
+        let unsubscribeActiveHistory = null;
+        
         let currentOpenedModalDate = null; 
+        let fullHistoryData = [];
+        let fullActiveData = [];
         const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"], weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
         
         const domRefs = { 
@@ -313,7 +349,18 @@
             closeFullHistoryBtn: document.getElementById('close-full-history-btn'),
             fullHistorySearch: document.getElementById('full-history-search'),
             fullHistoryList: document.getElementById('full-history-list'),
-            openFullHistoryBtn: document.getElementById('open-full-history-btn')
+            openFullHistoryBtn: document.getElementById('open-full-history-btn'),
+            // Novas refs do Histórico de Ativação
+            activeHistoryPopup: document.getElementById('active-history-popup'),
+            activeHistoryHeader: document.getElementById('active-history-header'),
+            activeHistoryBody: document.getElementById('active-history-body'),
+            activeHistoryChevron: document.getElementById('active-history-chevron'),
+            activeHistoryFooter: document.getElementById('active-history-footer'),
+            fullActiveModal: document.getElementById('full-active-modal'),
+            closeFullActiveBtn: document.getElementById('close-full-active-btn'),
+            fullActiveSearch: document.getElementById('full-active-search'),
+            fullActiveList: document.getElementById('full-active-list'),
+            openFullActiveBtn: document.getElementById('open-full-active-btn')
         };
         
         const extractionRefs = {
@@ -332,6 +379,7 @@
                 domRefs.extractionBtn.classList.remove('hidden');
                 domRefs.certificatesBtn.classList.remove('hidden');
                 listenToCertificateHistory();
+                listenToActivationHistory();
             } else {
                 domRefs.loginBtn.classList.remove('hidden');
                 domRefs.addGameBtn.classList.add('hidden');
@@ -339,7 +387,9 @@
                 domRefs.extractionBtn.classList.add('hidden');
                 domRefs.certificatesBtn.classList.add('hidden');
                 domRefs.certHistoryPopup.classList.add('hidden');
+                domRefs.activeHistoryPopup.classList.add('hidden');
                 if (unsubscribeHistory) unsubscribeHistory();
+                if (unsubscribeActiveHistory) unsubscribeActiveHistory();
             }
         });
         
@@ -451,6 +501,57 @@
                 });
         };
 
+        const listenToActivationHistory = () => {
+            if (!auth.currentUser) return;
+            domRefs.activeHistoryPopup.classList.remove('hidden');
+
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+            unsubscribeActiveHistory = db.collection('historico_ativacao')
+                .where('timestamp', '>=', sevenDaysAgo)
+                .orderBy('timestamp', 'desc')
+                .onSnapshot(snapshot => {
+                    if (snapshot.empty) {
+                        domRefs.activeHistoryBody.innerHTML = '<div class="text-sm text-gray-400 text-center py-4">Nenhuma ativação recente.</div>';
+                        return;
+                    }
+
+                    let itemsHTML = '';
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        const time = data.timestamp ? data.timestamp.toDate().toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute:'2-digit' }) : 'Agora';
+                        const isSim = (data.newValue || '').toLowerCase() === 'sim' || (data.newValue || '').toLowerCase() === 's';
+                        const colorClass = isSim ? 'text-green-400' : 'text-red-400';
+                        const arrow = isSim ? '↑' : '↓';
+                        
+                        itemsHTML += `
+                            <div class="border-b border-gray-700 pb-2 mb-2 last:border-0 last:pb-0 last:mb-0">
+                                <div class="flex justify-between items-center">
+                                    <strong class="text-white text-sm truncate pr-2">${data.gameName}</strong>
+                                    <span class="text-[10px] text-gray-500 flex-shrink-0">${time}</span>
+                                </div>
+                                <div class="text-xs text-gray-300 mt-1 flex items-center gap-1">
+                                    <span class="${data.platform === 'H2Bet' ? 'text-indigo-300' : 'text-green-300'} font-semibold">${data.platform}:</span>
+                                    <span class="line-through text-gray-500">${data.oldValue}</span>
+                                    <span>${arrow}</span>
+                                    <span class="${colorClass} font-bold">${data.newValue}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    domRefs.activeHistoryBody.innerHTML = itemsHTML;
+                    
+                    if (snapshot.docChanges().length > 0 && domRefs.activeHistoryBody.classList.contains('hidden')) {
+                        domRefs.activeHistoryHeader.classList.add('bg-blue-500');
+                        setTimeout(() => domRefs.activeHistoryHeader.classList.remove('bg-blue-500'), 1000);
+                    }
+                }, error => {
+                    console.error("Erro ao buscar histórico de ativação:", error);
+                });
+        };
+
         domRefs.certHistoryHeader.onclick = () => {
             const isHidden = domRefs.certHistoryBody.classList.contains('hidden');
             if (isHidden) {
@@ -464,9 +565,20 @@
             }
         };
 
-        // --- LÓGICA DO HISTÓRICO COMPLETO ---
-        let fullHistoryData = [];
+        domRefs.activeHistoryHeader.onclick = () => {
+            const isHidden = domRefs.activeHistoryBody.classList.contains('hidden');
+            if (isHidden) {
+                domRefs.activeHistoryBody.classList.remove('hidden');
+                domRefs.activeHistoryFooter.classList.remove('hidden');
+                domRefs.activeHistoryChevron.classList.remove('rotate-180');
+            } else {
+                domRefs.activeHistoryBody.classList.add('hidden');
+                domRefs.activeHistoryFooter.classList.add('hidden');
+                domRefs.activeHistoryChevron.classList.add('rotate-180');
+            }
+        };
 
+        // --- LÓGICA DO HISTÓRICO COMPLETO (CERTIFICADOS) ---
         const renderFullHistoryList = (query = '') => {
             const filtered = fullHistoryData.filter(item => item.gameName.toLowerCase().includes(query.toLowerCase()));
             
@@ -520,11 +632,62 @@
         domRefs.openFullHistoryBtn.onclick = openFullHistoryModal;
         domRefs.closeFullHistoryBtn.onclick = () => domRefs.fullHistoryModal.classList.add('hidden');
         domRefs.fullHistorySearch.oninput = (e) => renderFullHistoryList(e.target.value);
-        
-        domRefs.fullHistoryModal.onclick = (e) => { 
-            if (e.target === domRefs.fullHistoryModal) domRefs.fullHistoryModal.classList.add('hidden'); 
+        domRefs.fullHistoryModal.onclick = (e) => { if (e.target === domRefs.fullHistoryModal) domRefs.fullHistoryModal.classList.add('hidden'); };
+
+        // --- LÓGICA DO HISTÓRICO COMPLETO (ATIVAÇÃO) ---
+        const renderFullActiveList = (query = '') => {
+            const filtered = fullActiveData.filter(item => item.gameName.toLowerCase().includes(query.toLowerCase()));
+            
+            if (filtered.length === 0) {
+                domRefs.fullActiveList.innerHTML = '<div class="text-gray-400 text-center py-8 font-semibold">Nenhum registro encontrado.</div>';
+                return;
+            }
+
+            domRefs.fullActiveList.innerHTML = filtered.map(data => {
+                const time = data.timestamp ? data.timestamp.toDate().toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute:'2-digit' }) : 'Agora';
+                const isSim = (data.newValue || '').toLowerCase() === 'sim' || (data.newValue || '').toLowerCase() === 's';
+                const colorClass = isSim ? 'text-green-400' : 'text-red-400';
+                const arrow = isSim ? '↑' : '↓';
+
+                return `
+                    <div class="bg-gray-700 hover:bg-gray-600 transition-colors p-3 rounded-lg flex flex-col md:flex-row justify-between md:items-center gap-3 border border-gray-600 mb-2">
+                        <div class="font-bold text-white flex-1 truncate text-lg">${data.gameName}</div>
+                        <div class="flex flex-col md:flex-row items-start md:items-center gap-3 md:gap-6">
+                            <div class="flex items-center gap-2 text-sm bg-gray-800 px-3 py-1.5 rounded-lg border border-gray-700">
+                                <span class="${data.platform === 'H2Bet' ? 'text-indigo-300' : 'text-green-300'} font-semibold">${data.platform}:</span>
+                                <span class="line-through text-gray-500">${data.oldValue}</span>
+                                <span class="text-gray-400">${arrow}</span>
+                                <span class="${colorClass} font-bold">${data.newValue}</span>
+                            </div>
+                            <div class="text-xs text-gray-400 font-medium whitespace-nowrap min-w-[120px] text-right">
+                                📅 ${time}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
         };
-        // --- FIM DA LÓGICA DO HISTÓRICO COMPLETO ---
+
+        domRefs.openFullActiveBtn.onclick = async () => {
+            domRefs.fullActiveModal.classList.remove('hidden');
+            domRefs.fullActiveList.innerHTML = '<div class="text-center text-blue-400 mt-10 font-bold animate-pulse">Consultando banco de dados...</div>';
+            domRefs.fullActiveSearch.value = '';
+
+            try {
+                const snapshot = await db.collection('historico_ativacao').orderBy('timestamp', 'desc').get();
+                fullActiveData = [];
+                snapshot.forEach(doc => fullActiveData.push({ id: doc.id, ...doc.data() }));
+                renderFullActiveList();
+            } catch (error) {
+                console.error("Erro ao buscar histórico de ativação:", error);
+                domRefs.fullActiveList.innerHTML = `<div class="text-red-400 text-center py-8">Falha ao carregar: ${error.message}</div>`;
+            }
+        };
+
+        domRefs.closeFullActiveBtn.onclick = () => domRefs.fullActiveModal.classList.add('hidden');
+        domRefs.fullActiveSearch.oninput = (e) => renderFullActiveList(e.target.value);
+        domRefs.fullActiveModal.onclick = (e) => { if (e.target === domRefs.fullActiveModal) domRefs.fullActiveModal.classList.add('hidden'); };
+
 
         const renderCertificatesList = () => {
             const listContainer = domRefs.certModalList;
@@ -819,6 +982,18 @@
                         });
                     }
 
+                    // Novo bloco para gravar o histórico de ATIVAÇÃO
+                    if (realFieldName === 'Ativo no site?' && normOld !== normNew) {
+                        const historyActiveRef = db.collection('historico_ativacao').doc();
+                        batch.set(historyActiveRef, {
+                            gameName: gameName,
+                            platform: platform === 'h2bet' ? 'H2Bet' : 'SeuBet',
+                            oldValue: oldValue || 'Não',
+                            newValue: newValue,
+                            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    }
+
                     await batch.commit();
 
                     const eventoNaMemoria = events.find(e => e.game === gameName);
@@ -1082,47 +1257,40 @@
             window.addEventListener('resize', renderCarousel);
             document.onclick = (e) => { if (!e.target.closest('.relative')) domRefs.autocompleteList.classList.add('hidden'); if (!domRefs.toggleFilterBtn.contains(e.target) && !domRefs.filterOptions.contains(e.target)) { domRefs.filterOptions.classList.add('hidden'); domRefs.filterChevron.classList.remove('rotate-180'); } };
 
-            // --- LÓGICA PARA LIMPAR O HISTÓRICO (ALT + SHIFT + K) ---
-            const clearCertificateHistory = async () => {
-                if (!auth.currentUser) {
-                    return showToast('Você precisa estar logado como administrador.', 'error');
-                }
-
-                // Dispara o popup nativo de confirmação do navegador
-                const confirmacao = confirm('Excluir histórico: Tem certeza que deseja apagar todo o histórico de certificados? Esta ação não pode ser desfeita.');
+            // --- LÓGICA PARA LIMPAR OS HISTÓRICOS (ATALHOS TECLADO) ---
+            const clearHistory = async (collectionName, label) => {
+                if (!auth.currentUser) return showToast('Você precisa estar logado como administrador.', 'error');
+                
+                const confirmacao = confirm(`Excluir ${label}: Tem certeza que deseja apagar todo o histórico? Esta ação não pode ser desfeita.`);
                 
                 if (confirmacao) {
                     try {
-                        showToast('Limpando histórico...', 'success');
+                        showToast(`Limpando ${label}...`, 'success');
+                        const snapshot = await db.collection(collectionName).get();
                         
-                        // Busca todos os documentos da coleção de histórico
-                        const snapshot = await db.collection('historico_certificados').get();
-                        
-                        if (snapshot.empty) {
-                            return showToast('O histórico já está vazio.', 'success');
-                        }
+                        if (snapshot.empty) return showToast(`O ${label} já está vazio.`, 'success');
 
-                        // Cria um lote (batch) para deletar todos de uma vez
                         const batch = db.batch();
-                        snapshot.forEach(doc => {
-                            batch.delete(doc.ref);
-                        });
-
+                        snapshot.forEach(doc => batch.delete(doc.ref));
                         await batch.commit();
-                        showToast('Histórico excluído com sucesso!', 'success');
+                        showToast(`${label} excluído com sucesso!`, 'success');
                     } catch (error) {
-                        console.error("Erro ao limpar histórico:", error);
+                        console.error(`Erro ao limpar ${label}:`, error);
                         showToast(`Erro: ${error.message}`, 'error');
                     }
                 }
             };
 
-            // Ouvinte de teclado para o atalho
             document.addEventListener('keydown', (e) => {
-                // e.key.toLowerCase() garante que funcione com ou sem CapsLock ativado
+                // Atalho Certificados: Alt + Shift + K
                 if (e.altKey && e.shiftKey && e.key.toLowerCase() === 'k') {
-                    e.preventDefault(); // Evita que o navegador faça alguma ação padrão do atalho
-                    clearCertificateHistory();
+                    e.preventDefault(); 
+                    clearHistory('historico_certificados', 'Histórico de Certificados');
+                }
+                // Atalho Ativação: Alt + Shift + A
+                if (e.altKey && e.shiftKey && e.key.toLowerCase() === 'a') {
+                    e.preventDefault(); 
+                    clearHistory('historico_ativacao', 'Histórico de Ativação');
                 }
             });
             // --- FIM DA LÓGICA DE LIMPAR HISTÓRICO ---
