@@ -34,19 +34,6 @@
         .toast-enter-active { transform: translateY(0); opacity: 1; transition: all 300ms ease-out; }
         .toast-exit { transform: translateY(0); opacity: 1; }
         .toast-exit-active { transform: translateY(100%); opacity: 0; transition: all 300ms ease-in; }
-        @keyframes flash-red { 50% { background-color: #ef4444; } }
-        .day-highlight { animation: flash-red 1.5s infinite ease-in-out; }
-        @keyframes glow { 0%, 100% { box-shadow: 0 0 5px #ef4444; } 50% { box-shadow: 0 0 20px #ef4444, 0 0 30px #ef4444; } }
-        .card-highlight { border: 1px solid #ef4444; animation: glow 1.5s infinite ease-in-out; }
-        .carousel-container { overflow: hidden; width: 100%; cursor: grab; }
-        .carousel-container.grabbing { cursor: grabbing; }
-        .carousel-wrapper { display: flex; }
-        .carousel-slide { flex: 0 0 calc(100% / 3); box-sizing: border-box; padding: 0 8px; position: relative; }
-        .carousel-slide img { width: 100%; height: 120px; object-fit: cover; border-radius: 0.5rem; border: 2px solid transparent; transition: border-color 0.3s; pointer-events: none; }
-        .carousel-slide:hover img { border-color: #818cf8; }
-        .carousel-slide .slide-title { position: absolute; bottom: 0; left: 8px; right: 8px; background: rgba(0, 0, 0, 0.7); color: white; padding: 4px 8px; font-size: 0.8rem; font-weight: 600; text-align: center; border-bottom-left-radius: 0.5rem; border-bottom-right-radius: 0.5rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        @media (max-width: 1024px) { .carousel-slide { flex: 0 0 50%; } }
-        @media (max-width: 640px) { .carousel-slide { flex: 0 0 100%; } }
     </style>
 </head>
 <body class="bg-gray-900 text-white font-sans overflow-x-hidden">
@@ -54,12 +41,8 @@
     <div id="particles-js" class="absolute inset-0 z-0 overflow-hidden"></div>
 
     <main class="relative z-10 max-w-6xl mx-auto p-4 md:p-8">
-        <header class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-            <div id="highlight-carousel" class="carousel-container w-full md:w-2/3">
-                <div id="carousel-wrapper" class="carousel-wrapper"></div>
-            </div>
-            
-            <div class="flex items-center gap-2 flex-shrink-0 flex-wrap justify-end">
+        <header class="flex flex-col md:flex-row justify-end items-center mb-6 gap-4">
+            <div class="flex items-center gap-2 flex-shrink-0 flex-wrap justify-end w-full md:w-auto">
                 <button id="login-btn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors font-semibold">Login</button>
                 <button id="certificates-btn" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 rounded-lg transition-colors font-semibold flex items-center gap-2 hidden">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -197,13 +180,13 @@
                     <h5 class="font-bold text-indigo-300">H2Bet</h5>
                     <div><label class="block text-sm font-medium text-gray-300">Certificado</label><div class="flex gap-4 mt-1"><label class="flex items-center"><input type="radio" name="h2bet_certificado" value="Sim" class="mr-2">Sim</label><label class="flex items-center"><input type="radio" name="h2bet_certificado" value="Não" class="mr-2" checked>Não</label></div></div>
                     <div><label class="block text-sm font-medium text-gray-300">Ativo no site?</label><div class="flex gap-4 mt-1"><label class="flex items-center"><input type="radio" name="h2bet_ativo" value="Sim" class="mr-2">Sim</label><label class="flex items-center"><input type="radio" name="h2bet_ativo" value="Não" class="mr-2" checked>Não</label></div></div>
-                    <div><label class="block text-sm font-medium text-gray-300">Destaque?</label><div class="flex gap-4 mt-1"><label class="flex items-center"><input type="radio" name="h2bet_destaque" value="S" class="mr-2">Sim</label><label class="flex items-center"><input type="radio" name="h2bet_destaque" value="N" class="mr-2" checked>Não</label></div></div>
+                    <div><label class="block text-sm font-medium text-gray-300">Tem Thumbl?</label><div class="flex gap-4 mt-1"><label class="flex items-center"><input type="radio" name="h2bet_destaque" value="S" class="mr-2">Sim</label><label class="flex items-center"><input type="radio" name="h2bet_destaque" value="N" class="mr-2" checked>Não</label></div></div>
                 </div>
                  <div class="bg-gray-700 p-4 rounded-lg space-y-3">
                     <h5 class="font-bold text-green-300">SeuBet</h5>
                     <div><label class="block text-sm font-medium text-gray-300">Certificado</label><div class="flex gap-4 mt-1"><label class="flex items-center"><input type="radio" name="seubet_certificado" value="Sim" class="mr-2">Sim</label><label class="flex items-center"><input type="radio" name="seubet_certificado" value="Não" class="mr-2" checked>Não</label></div></div>
                     <div><label class="block text-sm font-medium text-gray-300">Ativo no site?</label><div class="flex gap-4 mt-1"><label class="flex items-center"><input type="radio" name="seubet_ativo" value="Sim" class="mr-2">Sim</label><label class="flex items-center"><input type="radio" name="seubet_ativo" value="Não" class="mr-2" checked>Não</label></div></div>
-                    <div><label class="block text-sm font-medium text-gray-300">Destaque?</label><div class="flex gap-4 mt-1"><label class="flex items-center"><input type="radio" name="seubet_destaque" value="S" class="mr-2">Sim</label><label class="flex items-center"><input type="radio" name="seubet_destaque" value="N" class="mr-2" checked>Não</label></div></div>
+                    <div><label class="block text-sm font-medium text-gray-300">Tem Thumbl?</label><div class="flex gap-4 mt-1"><label class="flex items-center"><input type="radio" name="seubet_destaque" value="S" class="mr-2">Sim</label><label class="flex items-center"><input type="radio" name="seubet_destaque" value="N" class="mr-2" checked>Não</label></div></div>
                 </div>
             </div>
 
@@ -283,19 +266,11 @@
         const PLACEHOLDER_IMAGE = 'https://placehold.co/400x300/2A2E3B/FFFFFF?text=Sem+Imagem';
         const PLACEHOLDER_PROVIDER_IMAGE = 'https://placehold.co/100x40/374151/FFFFFF?text=Provedor';
         let events = [], allProviders = [], providerData = [], selectedProviders = ['All'], searchQuery = '', currentDate = new Date();
-        let carouselInterval = null;
         let editMode = { active: false, originalId: null };
-        let isDown = false, startX, scrollLeft, hasDragged = false;
         let certFilterValue = 'All';
         let certModalSearchQuery = '';
-        
-        // Váriaveis de controle dos listeners
         let unsubscribeHistory = null;
-        let unsubscribeActiveHistory = null;
-        
         let currentOpenedModalDate = null; 
-        let fullHistoryData = [];
-        let fullActiveData = [];
         const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"], weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
         
         const domRefs = { 
@@ -319,8 +294,6 @@
             filterOptions: document.getElementById('filter-options'), 
             filterLabel: document.getElementById('filter-label'), 
             filterChevron: document.getElementById('filter-chevron'), 
-            carouselContainer: document.getElementById('highlight-carousel'), 
-            carouselWrapper: document.getElementById('carousel-wrapper'), 
             loginBtn: document.getElementById('login-btn'), 
             logoutBtn: document.getElementById('logout-btn'), 
             loginModal: document.getElementById('login-modal'), 
@@ -350,7 +323,6 @@
             fullHistorySearch: document.getElementById('full-history-search'),
             fullHistoryList: document.getElementById('full-history-list'),
             openFullHistoryBtn: document.getElementById('open-full-history-btn'),
-            // Novas refs do Histórico de Ativação
             activeHistoryPopup: document.getElementById('active-history-popup'),
             activeHistoryHeader: document.getElementById('active-history-header'),
             activeHistoryBody: document.getElementById('active-history-body'),
@@ -378,18 +350,12 @@
                 domRefs.logoutBtn.classList.remove('hidden');
                 domRefs.extractionBtn.classList.remove('hidden');
                 domRefs.certificatesBtn.classList.remove('hidden');
-                listenToCertificateHistory();
-                listenToActivationHistory();
             } else {
                 domRefs.loginBtn.classList.remove('hidden');
                 domRefs.addGameBtn.classList.add('hidden');
                 domRefs.logoutBtn.classList.add('hidden');
                 domRefs.extractionBtn.classList.add('hidden');
                 domRefs.certificatesBtn.classList.add('hidden');
-                domRefs.certHistoryPopup.classList.add('hidden');
-                domRefs.activeHistoryPopup.classList.add('hidden');
-                if (unsubscribeHistory) unsubscribeHistory();
-                if (unsubscribeActiveHistory) unsubscribeActiveHistory();
             }
         });
         
@@ -431,7 +397,7 @@
                     if (!hasError) { events.push(eventData); }
                 });
                 
-                renderFilters(); renderCalendars(); renderCarousel();
+                renderFilters(); renderCalendars();
                 
                 if (!domRefs.certificatesModal.classList.contains('hidden')) {
                     renderCertificatesList();
@@ -451,7 +417,6 @@
         };
 
         const listenToCertificateHistory = () => {
-            if (!auth.currentUser) return;
             domRefs.certHistoryPopup.classList.remove('hidden');
 
             const sevenDaysAgo = new Date();
@@ -502,13 +467,12 @@
         };
 
         const listenToActivationHistory = () => {
-            if (!auth.currentUser) return;
             domRefs.activeHistoryPopup.classList.remove('hidden');
 
             const sevenDaysAgo = new Date();
             sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-            unsubscribeActiveHistory = db.collection('historico_ativacao')
+            db.collection('historico_ativacao')
                 .where('timestamp', '>=', sevenDaysAgo)
                 .orderBy('timestamp', 'desc')
                 .onSnapshot(snapshot => {
@@ -578,7 +542,10 @@
             }
         };
 
-        // --- LÓGICA DO HISTÓRICO COMPLETO (CERTIFICADOS) ---
+        // --- LÓGICA DO HISTÓRICO COMPLETO ---
+        let fullHistoryData = [];
+        let fullActiveData = [];
+
         const renderFullHistoryList = (query = '') => {
             const filtered = fullHistoryData.filter(item => item.gameName.toLowerCase().includes(query.toLowerCase()));
             
@@ -634,7 +601,6 @@
         domRefs.fullHistorySearch.oninput = (e) => renderFullHistoryList(e.target.value);
         domRefs.fullHistoryModal.onclick = (e) => { if (e.target === domRefs.fullHistoryModal) domRefs.fullHistoryModal.classList.add('hidden'); };
 
-        // --- LÓGICA DO HISTÓRICO COMPLETO (ATIVAÇÃO) ---
         const renderFullActiveList = (query = '') => {
             const filtered = fullActiveData.filter(item => item.gameName.toLowerCase().includes(query.toLowerCase()));
             
@@ -687,7 +653,6 @@
         domRefs.closeFullActiveBtn.onclick = () => domRefs.fullActiveModal.classList.add('hidden');
         domRefs.fullActiveSearch.oninput = (e) => renderFullActiveList(e.target.value);
         domRefs.fullActiveModal.onclick = (e) => { if (e.target === domRefs.fullActiveModal) domRefs.fullActiveModal.classList.add('hidden'); };
-
 
         const renderCertificatesList = () => {
             const listContainer = domRefs.certModalList;
@@ -822,8 +787,8 @@
                 const dayEvents = filteredEvents.filter(e => e.date && e.date.getFullYear() === year && e.date.getMonth() === month && e.date.getDate() === day);
                 const isToday = new Date().toDateString() === new Date(year, month, day).toDateString();
                 const isSearched = searchQuery && dayEvents.length > 0;
-                const hasHighlight = dayEvents.some(e => (e.h2bet_destaque && e.h2bet_destaque.toLowerCase() === 's') || (e.seubet_destaque && e.seubet_destaque.toLowerCase() === 's'));
-                let dayClasses = `calendar-day relative p-2 rounded-lg transition-colors duration-200 aspect-square flex items-center justify-center ${dayEvents.length > 0 ? 'cursor-pointer hover:bg-indigo-700 bg-gray-700' : 'text-gray-500'} ${isToday ? 'bg-indigo-500 !text-white font-bold' : ''} ${isSearched ? '!bg-green-500 ring-2 ring-white' : ''} ${hasHighlight ? 'day-highlight' : ''}`;
+                
+                let dayClasses = `calendar-day relative p-2 rounded-lg transition-colors duration-200 aspect-square flex items-center justify-center ${dayEvents.length > 0 ? 'cursor-pointer hover:bg-indigo-700 bg-gray-700' : 'text-gray-500'} ${isToday ? 'bg-indigo-500 !text-white font-bold' : ''} ${isSearched ? '!bg-green-500 ring-2 ring-white' : ''}`;
                 daysHTML += `<div class="${dayClasses}" data-day="${day}" data-month="${month}" data-year="${year}"><span>${day}</span>${dayEvents.length > 0 ? `<span class="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center shadow-md">${dayEvents.length}</span>` : ''}</div>`;
             }
             return `<div class="bg-gray-800 bg-opacity-50 backdrop-blur-sm p-4 rounded-lg shadow-2xl"><h2 class="text-xl font-bold text-center mb-4 text-indigo-300">${monthNames[month]} ${year}</h2><div class="grid grid-cols-7 gap-1 text-center">${weekDays.map(d => `<div class="font-semibold text-xs text-gray-400">${d}</div>`).join('')}${daysHTML}</div></div>`;
@@ -855,9 +820,8 @@
             };
 
             const volatilityMeter = createVolatilityMeterHTML(event.volatility, event.game);
-            const hasHighlight = (event.h2bet_destaque && event.h2bet_destaque.toLowerCase() === 's') || (event.seubet_destaque && event.seubet_destaque.toLowerCase() === 's');
             
-            let cardClasses = `bg-gray-700 p-4 rounded-lg flex flex-col md:flex-row gap-4 relative group ${hasHighlight ? 'card-highlight' : ''}`;
+            let cardClasses = `bg-gray-700 p-4 rounded-lg flex flex-col md:flex-row gap-4 relative group`;
 
             const isAdmin = auth.currentUser;
             const imageContainerAttributes = isAdmin ? `data-action="changeImage" data-game-name="${event.game}" title="Clique para alterar a imagem"` : '';
@@ -878,12 +842,12 @@
                                 <div class="space-y-2 border-r border-gray-600 pr-4">
                                     ${statusHTML('H2Bet', 'text-indigo-300', 'Ativo', 'h2bet_ativo', event.h2bet_ativo)}
                                     ${statusHTML('H2Bet', 'text-indigo-300', 'Certificado', 'h2bet_certificado', event.h2bet_certificado)}
-                                    ${statusHTML('H2Bet', 'text-indigo-300', 'Destaque', 'h2bet_destaque', event.h2bet_destaque)}
+                                    ${statusHTML('H2Bet', 'text-indigo-300', 'Tem Thumbl?', 'h2bet_destaque', event.h2bet_destaque)}
                                 </div>
                                 <div class="space-y-2">
                                     ${statusHTML('SeuBet', 'text-green-300', 'Ativo', 'seubet_ativo', event.seubet_ativo)}
                                     ${statusHTML('SeuBet', 'text-green-300', 'Certificado', 'seubet_certificado', event.seubet_certificado)}
-                                    ${statusHTML('SeuBet', 'text-green-300', 'Destaque', 'seubet_destaque', event.seubet_destaque)}
+                                    ${statusHTML('SeuBet', 'text-green-300', 'Tem Thumbl?', 'seubet_destaque', event.seubet_destaque)}
                                 </div>
                             </div>
                             <div class="mt-4">${volatilityMeter}</div>
@@ -982,7 +946,6 @@
                         });
                     }
 
-                    // Novo bloco para gravar o histórico de ATIVAÇÃO
                     if (realFieldName === 'Ativo no site?' && normOld !== normNew) {
                         const historyActiveRef = db.collection('historico_ativacao').doc();
                         batch.set(historyActiveRef, {
@@ -1083,43 +1046,6 @@
                 renderCalendars();
             };
             
-            const renderCarousel = () => {
-                if (carouselInterval) clearInterval(carouselInterval);
-                const getUniqueCarouselEvents = () => {
-                    const today = new Date(); today.setHours(0, 0, 0, 0); const twoDaysAgo = new Date(today); twoDaysAgo.setDate(today.getDate() - 2);
-                    const highlightEvents = events.filter(event => !event.hasError && ((event.h2bet_destaque && event.h2bet_destaque.toLowerCase() === 's') || (event.seubet_destaque && event.seubet_destaque.toLowerCase() === 's')) && event.date >= twoDaysAgo).sort((a, b) => a.date - b.date);
-                    const uniqueGames = new Map(); for (const event of highlightEvents) { if (!uniqueGames.has(event.game)) { uniqueGames.set(event.game, event); } } return Array.from(uniqueGames.values());
-                };
-                const carouselEvents = getUniqueCarouselEvents();
-                if (carouselEvents.length === 0) { domRefs.carouselWrapper.innerHTML = '<div class="text-center w-full text-gray-400 p-8">Nenhum jogo em destaque.</div>'; return; }
-                const getVisibleSlidesCount = () => { if (window.innerWidth <= 640) return 1; if (window.innerWidth <= 1024) return 2; return 3; }; const numVisibleSlides = getVisibleSlidesCount(); const enableInfiniteScroll = carouselEvents.length > numVisibleSlides; let slides = carouselEvents; if (enableInfiniteScroll) { slides = [...carouselEvents, ...carouselEvents.slice(0, numVisibleSlides)]; }
-                domRefs.carouselWrapper.innerHTML = slides.map(event => `<div class="carousel-slide" data-gamedate="${event.date.toISOString()}"><img src="${event.gameImage}" alt="${event.game}" onerror="this.onerror=null;this.src='${PLACEHOLDER_IMAGE}';"><div class="slide-title">${event.game}</div></div>`).join('');
-                if (enableInfiniteScroll) { let currentIndex = 0; const totalUniqueSlides = carouselEvents.length; const advanceCarousel = () => { if (domRefs.carouselWrapper.children.length === 0) return; const slideWidth = domRefs.carouselWrapper.children[0].getBoundingClientRect().width; if (slideWidth === 0) return; currentIndex++; domRefs.carouselWrapper.style.transition = 'transform 0.5s ease-in-out'; domRefs.carouselWrapper.style.transform = `translateX(-${currentIndex * slideWidth}px)`; if (currentIndex >= totalUniqueSlides) { setTimeout(() => { domRefs.carouselWrapper.style.transition = 'none'; currentIndex = 0; domRefs.carouselWrapper.style.transform = `translateX(0)`; }, 500); } }; if (carouselInterval) clearInterval(carouselInterval); carouselInterval = setInterval(advanceCarousel, 3000); }
-            };
-
-            const handleCarouselClick = (e) => {
-                const slide = e.target.closest('.carousel-slide');
-                if (!slide) return;
-                const eventDate = new Date(slide.dataset.gamedate);
-                currentDate = new Date(eventDate.getFullYear(), eventDate.getMonth(), 1);
-                renderCalendars();
-                const dayEvents = events.filter(ev => ev.date && ev.date.toDateString() === eventDate.toDateString());
-                if (dayEvents.length > 0) renderModal(eventDate, dayEvents);
-            };
-
-            const startDragging = (e) => {
-                isDown = true; hasDragged = false; domRefs.carouselContainer.classList.add('grabbing');
-                startX = e.pageX || e.touches[0].pageX - domRefs.carouselContainer.offsetLeft;
-                scrollLeft = domRefs.carouselContainer.scrollLeft;
-                if (carouselInterval) clearInterval(carouselInterval);
-            };
-            const stopDragging = () => { isDown = false; domRefs.carouselContainer.classList.remove('grabbing');};
-            const whileDragging = (e) => {
-                if (!isDown) return; e.preventDefault(); hasDragged = true;
-                const x = e.pageX || e.touches[0].pageX - domRefs.carouselContainer.offsetLeft;
-                domRefs.carouselContainer.scrollLeft = scrollLeft - ((x - startX) * 2);
-            };
-
             const renderParticles = () => {
                 for (let i = 0; i < 50; i++) { const p = document.createElement('div'); p.className = 'particle'; const s = Math.random() * 4 + 1; p.style.width = `${s}px`; p.style.height = `${s}px`; p.style.left = `${Math.random() * 100}%`; p.style.top = `${Math.random() * 100}%`; p.style.animationDuration = `${Math.random() * 20 + 10}s`; p.style.animationDelay = `${Math.random() * -30}s`; domRefs.particlesContainer.appendChild(p); }
             };
@@ -1200,10 +1126,10 @@
                     "Volatilidade": e.volatility,
                     "H2Bet - Ativo": e.h2bet_ativo,
                     "H2Bet - Certificado": e.h2bet_certificado,
-                    "H2Bet - Destaque": e.h2bet_destaque,
+                    "H2Bet - Tem Thumbl?": e.h2bet_destaque,
                     "SeuBet - Ativo": e.seubet_ativo,
                     "SeuBet - Certificado": e.seubet_certificado,
-                    "SeuBet - Destaque": e.seubet_destaque,
+                    "SeuBet - Tem Thumbl?": e.seubet_destaque,
                     "Imagem URL": e.gameImage
                 })).sort((a, b) => new Date(a.Data.split('/').reverse().join('-')) - new Date(b.Data.split('/').reverse().join('-')));
 
@@ -1245,16 +1171,6 @@
             extractionRefs.toggle.onchange = toggleExtractionMode;
             extractionRefs.selectAll.onchange = handleSelectAllMonths;
 
-            domRefs.carouselContainer.addEventListener('mousedown', startDragging);
-            domRefs.carouselContainer.addEventListener('mouseleave', stopDragging);
-            domRefs.carouselContainer.addEventListener('mouseup', stopDragging);
-            domRefs.carouselContainer.addEventListener('mousemove', whileDragging);
-            domRefs.carouselContainer.addEventListener('touchstart', startDragging, { passive: true });
-            domRefs.carouselContainer.addEventListener('touchend', stopDragging);
-            domRefs.carouselContainer.addEventListener('touchmove', whileDragging);
-            domRefs.carouselContainer.addEventListener('click', (e) => { if (hasDragged) { e.stopPropagation(); e.preventDefault(); } else { handleCarouselClick(e); } }, true);
-
-            window.addEventListener('resize', renderCarousel);
             document.onclick = (e) => { if (!e.target.closest('.relative')) domRefs.autocompleteList.classList.add('hidden'); if (!domRefs.toggleFilterBtn.contains(e.target) && !domRefs.filterOptions.contains(e.target)) { domRefs.filterOptions.classList.add('hidden'); domRefs.filterChevron.classList.remove('rotate-180'); } };
 
             // --- LÓGICA PARA LIMPAR OS HISTÓRICOS (ATALHOS TECLADO) ---
@@ -1295,7 +1211,11 @@
             });
             // --- FIM DA LÓGICA DE LIMPAR HISTÓRICO ---
 
-            renderParticles(); fetchData();
+            // Inicia tudo no carregamento da página
+            renderParticles(); 
+            fetchData();
+            listenToCertificateHistory();
+            listenToActivationHistory();
         });
     </script>
 </body>
